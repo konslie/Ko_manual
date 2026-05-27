@@ -37,6 +37,14 @@
                     },
                     fontFamily: {
                         sans: ['"IBM Plex Sans"', 'Pretendard', '-apple-system', 'BlinkMacSystemFont', 'system-ui', 'sans-serif']
+                    },
+                    fontSize: {
+                        'xs': '14px',   // 원래 12px
+                        'sm': '16px',   // 원래 14px
+                        'base': '18px', // 원래 16px
+                        'lg': '20px',   // 원래 18px
+                        'xl': '22px',   // 원래 20px
+                        '2xl': '26px'   // 원래 24px
                     }
                 }
             }
@@ -46,6 +54,25 @@
         body {
             background-color: #f4f3ef;
             color: #1c1b1b;
+        }
+
+        /* 임의 크기 폰트 클래스 2px(2pt) 일괄 상향 조정 */
+        .text-\[9px\] { font-size: 11px !important; }
+        .text-\[10px\] { font-size: 12px !important; }
+        .text-\[11px\] { font-size: 13px !important; }
+        .text-\[13px\] { font-size: 15px !important; }
+
+        /* VRB 상세 테이블 폰트 크기 개별 복원 (2px 축소) */
+        .vrb-table-container,
+        .vrb-table-container th,
+        .vrb-table-container td {
+            font-size: 12px !important;
+        }
+        .vrb-table-container .text-\[10px\] {
+            font-size: 10px !important;
+        }
+        .vrb-table-container .text-\[11px\] {
+            font-size: 11px !important;
         }
 
         /* Custom scrollbar for Warm Gray light UI */
@@ -556,7 +583,7 @@
                     </div>
 
                     <!-- Responsive Table -->
-                    <div class="overflow-x-auto">
+                    <div class="overflow-x-auto vrb-table-container">
                         <table class="w-full text-left text-xs border-collapse min-w-[1000px]">
                             <thead>
                                 <tr class="border-b border-brand-surface-container text-brand-onvariant">
