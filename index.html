@@ -57,10 +57,21 @@
         }
 
         /* 임의 크기 폰트 클래스 2px(2pt) 일괄 상향 조정 */
-        .text-\[9px\] { font-size: 11px !important; }
-        .text-\[10px\] { font-size: 12px !important; }
-        .text-\[11px\] { font-size: 13px !important; }
-        .text-\[13px\] { font-size: 15px !important; }
+        .text-\[9px\] {
+            font-size: 11px !important;
+        }
+
+        .text-\[10px\] {
+            font-size: 12px !important;
+        }
+
+        .text-\[11px\] {
+            font-size: 13px !important;
+        }
+
+        .text-\[13px\] {
+            font-size: 15px !important;
+        }
 
         /* VRB 상세 테이블 폰트 크기 개별 복원 (2px 축소) */
         .vrb-table-container,
@@ -68,9 +79,11 @@
         .vrb-table-container td {
             font-size: 12px !important;
         }
+
         .vrb-table-container .text-\[10px\] {
             font-size: 10px !important;
         }
+
         .vrb-table-container .text-\[11px\] {
             font-size: 11px !important;
         }
@@ -389,6 +402,7 @@
                             class="text-[10px] font-bold text-brand-primary bg-brand-primary/[0.04] px-2 py-0.5 rounded border border-brand-primary/20">매월</span>
                     </div>
                     <p class="text-xs text-brand-onvariant" contenteditable="false">고객 이익조정을 위한 수기입력 / 매월 업데이트</p>
+                    <p class="text-xs text-brand-onvariant mt-1" contenteditable="false">수주이익 조정 테이블은 <span class="font-bold" style="color:#b90064;">정기배치 이후</span> 수정해야함</p>
                 </div>
             </div>
         </section>
@@ -411,8 +425,6 @@
                             contenteditable="false">
                             <strong>조정 배경:</strong> MVNO 정산 매출은 사업팀으로 귀속된 뒤, UCube 매출보정 기능으로 영업팀으로 귀속처리함. 단, 매출보정처리 시
                             사업자번호 없이 조정처리하여 고객단위 매출에서 제외되는 문제 존재. 이를 보완하고자 수기 조정 처리 필수.
-                            <span class="mt-2 block"><strong>조정방법:</strong> 기업DW 확정매출 업데이트 시 각 영업사원의 손익별 '보정매출' 금액 확인
-                                (또는 파트너플러스에서 각 사업자별 전표금액 확인)</span>
                         </div>
                     </div>
 
@@ -422,6 +434,11 @@
                             <span class="text-[11px] font-bold text-brand-primary block mb-1">에스원 (M20)</span>
                             <p class="text-xs text-brand-carbon font-medium" contenteditable="false">M2M 보안 MVNO 통신비 조정
                             </p>
+                            <p class="text-xs text-brand-onvariant mt-2" contenteditable="false"><strong>조정방법:</strong>
+                                <span
+                                    class="inline-block px-1.5 py-0.5 rounded text-[10px] font-bold bg-violet-100 text-violet-700 border border-violet-200">파트너플러스</span>
+                                에서 매월 정산전표금액 확인
+                            </p>
                         </div>
                         <div
                             class="bg-brand-surface-low p-4 rounded border border-brand-surface-container hover:border-brand-primary transition-colors">
@@ -429,7 +446,17 @@
                                 (T35)</span>
                             <p class="text-xs text-brand-carbon font-medium" contenteditable="false">커넥티드카 MVNO 통신비 조정
                             </p>
+                            <p class="text-xs text-brand-onvariant mt-2" contenteditable="false"><strong>조정방법:</strong>
+                                <span
+                                    class="inline-block px-1.5 py-0.5 rounded text-[10px] font-bold bg-sky-100 text-sky-700 border border-sky-200">기업DW</span>
+                                확정매출의 영업사원별 <em>'보정매출'</em> 금액 확인
+                            </p>
                         </div>
+                    </div>
+                    <div class="p-4 bg-brand-surface-low border border-brand-surface-container rounded text-[11px] text-brand-onvariant mt-3"
+                        contenteditable="false">확인 후 매출조정 수기테이블 <span
+                            class="font-mono font-bold px-1.5 py-0.5 rounded bg-fuchsia-100 text-fuchsia-700 border border-fuchsia-200">EPM_SLIN_AJD_M</span>
+                        <span class="text-brand-onvariant">(13번)</span> 파일 양식에 입력하여 반영
                     </div>
                 </div>
 
@@ -449,14 +476,13 @@
                         <div
                             class="bg-brand-surface-low p-4 rounded border border-brand-surface-container hover:border-brand-primary transition-colors">
                             <span class="text-[11px] font-bold text-brand-primary block mb-1">네이버</span>
-                            <p class="text-xs text-brand-carbon font-medium" contenteditable="false">코람코 가산센터 심의매출을
-                                청구매출로 적용</p>
+                            <p class="text-xs text-brand-carbon font-medium leading-relaxed" contenteditable="false"><span class="font-bold text-brand-carbon">코람코 가산센터</span> 심의매출을 실제 누적 <span class="font-bold text-brand-carbon">청구매출</span>로 조정</p>
+                            <p class="text-xs text-brand-onvariant mt-1.5 leading-relaxed" contenteditable="false">— 네이버 청구계정번호 <span class="font-mono font-bold">619756~~~</span> 에 해당하는 <span class="font-bold text-brand-carbon">청구매출</span>을 <span class="inline-block px-1.5 py-0.5 rounded text-[10px] font-bold bg-sky-100 text-sky-700 border border-sky-200">UCube</span> 확인하여 반영</p>
                         </div>
                         <div
                             class="bg-brand-surface-low p-4 rounded border border-brand-surface-container hover:border-brand-primary transition-colors">
                             <span class="text-[11px] font-bold text-brand-primary block mb-1">한전</span>
-                            <p class="text-xs text-brand-carbon font-medium" contenteditable="false">전력통신 손익의 PL 수익률 적용
-                            </p>
+                            <p class="text-xs text-brand-carbon font-medium leading-relaxed" contenteditable="false">한전의 <span class="font-bold text-brand-carbon">전력통신</span> 손익에 대한 수익률을 <span class="inline-block px-1.5 py-0.5 rounded text-[10px] font-bold bg-amber-100 text-amber-700 border border-amber-200">전력통신(P10)</span>의 <span class="font-bold text-brand-carbon">PL 수익률</span>로 조정</p>
                         </div>
                     </div>
                 </div>
@@ -554,7 +580,7 @@
                             <span class="text-xs font-bold text-brand-carbon">심의조정 결과 확인 후</span>
                         </div>
                         <p class="text-xs text-brand-onvariant leading-relaxed" contenteditable="false">
-                            경영성과리뷰 데이터 생성 (작성양식 파일 내 Claude 활용하여 생성)
+                            경영성과리뷰 데이터 생성 (작성양식 파일 내 Copilot 활용하여 생성) <br> - <span class="font-bold" style="color:#b90064;">KA 53개 손익별 매출, 이익 증감사유 파악 : 심의내역 분석 필요</span>
                         </p>
                     </div>
                 </div>
@@ -574,7 +600,8 @@
                 <div class="bg-brand-surface border border-brand-surface-container rounded-xl p-6">
                     <div class="mb-4 pb-4 border-b border-brand-surface-container">
                         <span class="text-xs font-bold text-brand-carbon flex items-center gap-2">
-                            <span class="w-5 h-5 rounded-full bg-brand-primary text-white text-[10px] flex items-center justify-center font-bold">1</span>
+                            <span
+                                class="w-5 h-5 rounded-full bg-brand-primary text-white text-[10px] flex items-center justify-center font-bold">1</span>
                             VRB 심의 데이터 — 반영개월 및 반영금액 산출
                         </span>
                         <span class="text-[11px] text-brand-onvariant block mt-1">
@@ -634,7 +661,7 @@
                 <!-- Step Connection Arrow -->
                 <div class="flex justify-center my-2">
                     <svg class="w-16 h-6 text-brand-surface-container" viewBox="0 0 64 24" fill="currentColor">
-                        <path d="M0 0 L32 24 L64 0 Z"/>
+                        <path d="M0 0 L32 24 L64 0 Z" />
                     </svg>
                 </div>
 
@@ -703,7 +730,7 @@
                 <!-- Step Connection Arrow -->
                 <div class="flex justify-center my-2">
                     <svg class="w-16 h-6 text-brand-surface-container" viewBox="0 0 64 24" fill="currentColor">
-                        <path d="M0 0 L32 24 L64 0 Z"/>
+                        <path d="M0 0 L32 24 L64 0 Z" />
                     </svg>
                 </div>
 
@@ -838,7 +865,7 @@
             <!-- Step Connection Arrow -->
             <div class="flex justify-center my-4">
                 <svg class="w-16 h-6 text-brand-surface-container" viewBox="0 0 64 24" fill="currentColor">
-                    <path d="M0 0 L32 24 L64 0 Z"/>
+                    <path d="M0 0 L32 24 L64 0 Z" />
                 </svg>
             </div>
 
@@ -889,7 +916,8 @@
             <!-- 2단계: 조정 후 한전 심의조정 완료 테이블 (조정행 추가 반영) -->
             <div class="bg-brand-surface border border-brand-surface-container rounded-xl p-5 mb-6">
                 <span class="text-xs font-bold text-brand-carbon block mb-4">
-                    <i class="fa-solid fa-circle-check mr-1.5 text-brand-primary"></i> 2단계: 조정 후 한전 심의조정 완료 명세 (조정행 추가 반영)
+                    <i class="fa-solid fa-circle-check mr-1.5 text-brand-primary"></i> 2단계: 조정 후 한전 심의조정 완료 명세 (조정행 추가
+                    반영)
                 </span>
                 <div class="overflow-x-auto">
                     <table class="w-full text-left text-xs border-collapse min-w-[800px]">
@@ -914,14 +942,15 @@
             <!-- Step Connection Arrow -->
             <div class="flex justify-center my-4">
                 <svg class="w-16 h-6 text-brand-surface-container" viewBox="0 0 64 24" fill="currentColor">
-                    <path d="M0 0 L32 24 L64 0 Z"/>
+                    <path d="M0 0 L32 24 L64 0 Z" />
                 </svg>
             </div>
 
             <!-- 3단계: 확정매출 기준 적용이익률 반영 최종 이익 계산 및 한전 성과 합계 테이블 -->
             <div class="bg-brand-surface border border-brand-surface-container rounded-xl p-5">
                 <span class="text-xs font-bold text-brand-carbon block mb-4">
-                    <i class="fa-solid fa-square-poll-vertical mr-1.5 text-brand-primary"></i> 3단계: 확정매출 기준 적용이익률 반영 최종 이익 계산 및 한전 성과 합계
+                    <i class="fa-solid fa-square-poll-vertical mr-1.5 text-brand-primary"></i> 3단계: 확정매출 기준 적용이익률 반영 최종
+                    이익 계산 및 한전 성과 합계
                 </span>
 
                 <div class="overflow-x-auto mb-6">
@@ -951,7 +980,8 @@
                         </div>
                         <div>
                             <span class="text-xs font-bold text-brand-carbon block">한전 (KEPCO) 최종 조정 성과 마감 합계</span>
-                            <span class="text-[10px] text-brand-onvariant">확정매출 기준 3개 손익(전력통신 + M2M + 기업인터넷) 최종 집계 결과</span>
+                            <span class="text-[10px] text-brand-onvariant">확정매출 기준 3개 손익(전력통신 + M2M + 기업인터넷) 최종 집계
+                                결과</span>
                         </div>
                     </div>
                     <div class="flex flex-wrap gap-4 sm:gap-6 text-right justify-end">
