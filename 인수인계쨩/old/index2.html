@@ -1,0 +1,814 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>성과관리 시스템 인수인계 통합 가이드</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Pretendard:wght@300;400;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Pretendard', sans-serif; background-color: #f1f5f9; color: #334155; scroll-behavior: smooth; font-size: 14px; }
+        .nav-link { transition: all 0.2s; border-bottom: 2px solid transparent; }
+        .nav-link.active { border-bottom-color: #2563eb; color: #2563eb; font-weight: 700; }
+
+        /* Section header */
+        .section-num { width: 2rem; height: 2rem; border-radius: 0.5rem; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 0.875rem; flex-shrink: 0; }
+
+        /* Table */
+        table { border-collapse: collapse; }
+        thead th { font-size: 11px; font-weight: 600; color: #64748b; letter-spacing: 0.01em; padding: 10px 12px; background: #f8fafc; }
+        tbody td { font-size: 12px; color: #475569; padding: 10px 12px; }
+        tbody tr:hover { background-color: #f8fafc; }
+        tbody tr:not(:last-child) { border-bottom: 1px solid #f1f5f9; }
+
+        /* Badge */
+        .badge { display: inline-flex; align-items: center; padding: 2px 8px; border-radius: 4px; font-size: 11px; font-weight: 700; }
+        .badge-blue { background: #dbeafe; color: #1d4ed8; }
+        .badge-green { background: #d1fae5; color: #065f46; }
+        .badge-amber { background: #fef3c7; color: #92400e; }
+
+        /* Pulse for critical cards */
+        @keyframes soft-pulse {
+            0%, 100% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.12); }
+            50% { box-shadow: 0 0 0 8px rgba(239, 68, 68, 0); }
+        }
+        .critical-card { animation: soft-pulse 4s ease-in-out infinite; }
+
+        /* Card */
+        .card { background: white; border-radius: 1rem; border: 1px solid #e2e8f0; }
+
+        /* Sub-label */
+        .sub-label { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; }
+    </style>
+</head>
+<body>
+
+<!-- Navigation -->
+<nav class="fixed top-0 w-full z-50 bg-white/96 backdrop-blur border-b border-slate-200 shadow-sm">
+    <div class="max-w-6xl mx-auto px-6 h-14 flex items-center justify-between">
+        <div class="flex items-center gap-2.5">
+            <div class="w-7 h-7 bg-blue-600 rounded-md flex items-center justify-center text-white font-bold text-sm">P</div>
+            <span class="font-bold text-slate-800 text-sm">System Handover <span class="text-blue-600">2026</span></span>
+        </div>
+        <div class="hidden md:flex gap-7 font-medium text-slate-500" style="font-size:13px">
+            <a href="#section-overview" class="nav-link py-1">시스템 구조</a>
+            <a href="#section-logic" class="nav-link py-1">산출 로직</a>
+            <a href="#section-exceptions" class="nav-link py-1">예외 규칙</a>
+            <a href="#section-example" class="nav-link py-1">계산 예시</a>
+            <a href="#section-schedule" class="nav-link py-1">배치 일정</a>
+        </div>
+    </div>
+</nav>
+
+<main class="pt-20 pb-24 px-4">
+    <div class="max-w-6xl mx-auto">
+
+        <!-- Hero Header -->
+        <header class="my-10 bg-slate-900 rounded-3xl p-10 text-white relative overflow-hidden">
+            <div class="absolute inset-0 opacity-10"
+                style="background: radial-gradient(ellipse at 80% 50%, #3b82f6 0%, transparent 60%);">
+            </div>
+            <div class="relative z-10">
+                <span class="inline-block px-3 py-1 bg-blue-500/20 text-blue-300 text-xs font-bold rounded-full mb-4 tracking-widest uppercase">Handover Guide</span>
+                <h1 class="text-3xl md:text-4xl font-extrabold mb-4 leading-tight">
+                    성과관리 시스템<br>인수인계 통합 가이드
+                </h1>
+                <p class="text-slate-400 text-sm max-w-2xl leading-relaxed">
+                    전사 DW와 7대 수기 관리 테이블을 결합하여 고객별 수익성을 산출하는 핵심 엔진의 인수인계 문서.
+                    데이터 파이프라인 흐름, 예외 처리 규칙 및 가중평균 산출 로직이 기술되어 있습니다.
+                </p>
+                <div class="flex flex-wrap gap-4 mt-8">
+                    <div class="bg-white/10 rounded-xl px-5 py-3 text-center">
+                        <div class="text-2xl font-extrabold text-white">7개</div>
+                        <div class="text-xs text-slate-400 mt-0.5">수기 관리 테이블</div>
+                    </div>
+                    <div class="bg-white/10 rounded-xl px-5 py-3 text-center">
+                        <div class="text-2xl font-extrabold text-white">4개</div>
+                        <div class="text-xs text-slate-400 mt-0.5">핵심 성과 지표</div>
+                    </div>
+                    <div class="bg-white/10 rounded-xl px-5 py-3 text-center">
+                        <div class="text-2xl font-extrabold text-white">3개</div>
+                        <div class="text-xs text-slate-400 mt-0.5">예외 고객사</div>
+                    </div>
+                    <div class="bg-white/10 rounded-xl px-5 py-3 text-center">
+                        <div class="text-2xl font-extrabold text-white">매월 11일</div>
+                        <div class="text-xs text-slate-400 mt-0.5">데이터 마트 적재</div>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <!-- ───────────────────────────────────────────────── -->
+        <!-- SECTION 1: 시스템 구조 -->
+        <!-- ───────────────────────────────────────────────── -->
+        <section id="section-overview" class="mb-16 scroll-mt-20">
+            <div class="flex items-center gap-3 mb-6">
+                <span class="section-num bg-blue-600 text-white">1</span>
+                <h2 class="text-xl font-bold text-slate-800">시스템 구성 및 마스터 데이터</h2>
+            </div>
+
+            <!-- 2-col layout: Master Tables + Join Structure -->
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+
+                <!-- Manual Tables -->
+                <div class="lg:col-span-5 bg-white rounded-2xl border border-slate-200 p-6">
+                    <h3 class="font-bold text-slate-800 mb-1">7대 수기 관리 테이블</h3>
+                    <p class="text-xs text-slate-500 mb-5 leading-relaxed">
+                        시스템 자동화가 불가능한 정성적 의사결정 및 보정 데이터. 마스터 조인 시 함께 반영됩니다.
+                    </p>
+                    <div class="space-y-2">
+                        <div class="flex items-start gap-3 p-3 bg-slate-50 rounded-xl border border-slate-100">
+                            <span class="w-5 h-5 bg-blue-100 text-blue-600 rounded-full flex items-center justify-center text-xs font-bold flex-shrink-0 mt-0.5">1</span>
+                            <div>
+                                <div class="font-semibold text-slate-800 text-xs">KA 고객 정의</div>
+                                <div class="text-xs text-slate-500 mt-0.5">Key Account 대형 고객사에 대한 개별 식별 기준</div>
+                            </div>
+                        </div>
+                        <div class="flex items-start gap-3 p-3 bg-slate-50 rounded-xl border border-slate-100">
+                            <span class="w-5 h-5 bg-blue-100 text-blue-600 rounded-full flex items-center justify-center text-xs font-bold flex-shrink-0 mt-0.5">2</span>
+                            <div>
+                                <div class="font-semibold text-slate-800 text-xs">GA 고객 정의</div>
+                                <div class="text-xs text-slate-500 mt-0.5">General Account 일반 영업 대상 고객 식별 기준</div>
+                            </div>
+                        </div>
+                        <div class="flex items-start gap-3 p-3 bg-slate-50 rounded-xl border border-slate-100">
+                            <span class="w-5 h-5 bg-blue-100 text-blue-600 rounded-full flex items-center justify-center text-xs font-bold flex-shrink-0 mt-0.5">3</span>
+                            <div>
+                                <div class="font-semibold text-slate-800 text-xs">고객 그룹핑 정의</div>
+                                <div class="text-xs text-slate-500 mt-0.5">계열사, 파트너사 등 연관 고객을 단일 그룹으로 매핑</div>
+                            </div>
+                        </div>
+                        <div class="flex items-start gap-3 p-3 bg-slate-50 rounded-xl border border-slate-100">
+                            <span class="w-5 h-5 bg-blue-100 text-blue-600 rounded-full flex items-center justify-center text-xs font-bold flex-shrink-0 mt-0.5">4</span>
+                            <div>
+                                <div class="font-semibold text-slate-800 text-xs">고객군 정의</div>
+                                <div class="text-xs text-slate-500 mt-0.5">산업군, 규모, 채널별 세그먼트 분류</div>
+                            </div>
+                        </div>
+                        <div class="flex items-start gap-3 p-3 bg-slate-50 rounded-xl border border-slate-100">
+                            <span class="w-5 h-5 bg-blue-100 text-blue-600 rounded-full flex items-center justify-center text-xs font-bold flex-shrink-0 mt-0.5">5</span>
+                            <div>
+                                <div class="font-semibold text-slate-800 text-xs">PL 수익률 정의</div>
+                                <div class="text-xs text-slate-500 mt-0.5">손익 항목별 PL 이익률 기준값 관리</div>
+                            </div>
+                        </div>
+                        <div class="flex items-start gap-3 p-3 bg-amber-50 rounded-xl border border-amber-200">
+                            <span class="w-5 h-5 bg-amber-400 text-white rounded-full flex items-center justify-center text-xs font-bold flex-shrink-0 mt-0.5">6</span>
+                            <div>
+                                <div class="font-semibold text-amber-800 text-xs">매출 조정 ★</div>
+                                <div class="text-xs text-amber-700 mt-0.5">영업 귀속 보정 및 사업부 간 정산 조정값 입력 — <b>MVNO 수동 기입 필수</b></div>
+                            </div>
+                        </div>
+                        <div class="flex items-start gap-3 p-3 bg-slate-50 rounded-xl border border-slate-100">
+                            <span class="w-5 h-5 bg-blue-100 text-blue-600 rounded-full flex items-center justify-center text-xs font-bold flex-shrink-0 mt-0.5">7</span>
+                            <div>
+                                <div class="font-semibold text-slate-800 text-xs">수주 조정</div>
+                                <div class="text-xs text-slate-500 mt-0.5">계약 변경 등에 따른 수주 잔고 조정값 입력</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Join Structure -->
+                <div class="lg:col-span-7 bg-white rounded-2xl border border-slate-200 p-6 flex flex-col">
+                    <h3 class="font-bold text-slate-800 mb-1">단일 고객 마스터 → 2단계 성과지표 Join 구조</h3>
+                    <p class="text-xs text-slate-500 mb-6">고객 마스터에서 발급된 고객 ID를 키로 4개 성과지표와 조인합니다.</p>
+
+                    <!-- Step 1: Master -->
+                    <div class="bg-slate-900 rounded-2xl p-5 text-white mb-3">
+                        <div class="flex items-center justify-between mb-3">
+                            <span class="px-2 py-0.5 bg-blue-500 rounded text-xs font-bold uppercase tracking-widest">1단계</span>
+                            <span class="text-slate-400 text-xs">중복 계정 정제 → 유일 고객 ID 발급</span>
+                        </div>
+                        <h4 class="font-bold text-base mb-3">단일 고객 마스터</h4>
+                        <div class="grid grid-cols-2 gap-3 text-xs">
+                            <div class="bg-white/10 rounded-xl p-3">
+                                <div class="text-slate-400 mb-1 text-xs">매핑 최우선 식별키</div>
+                                <div class="font-bold text-blue-400">사업자번호</div>
+                            </div>
+                            <div class="bg-white/10 rounded-xl p-3">
+                                <div class="text-slate-400 mb-1 text-xs">차순위 식별키</div>
+                                <div class="font-bold text-slate-300">고객번호 (UCube)</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Join Key Badge -->
+                    <div class="flex items-center justify-center gap-3 py-2 mb-3">
+                        <div class="flex-1 h-px bg-slate-200"></div>
+                        <span class="px-4 py-1.5 bg-blue-50 border border-blue-200 text-blue-700 font-mono text-xs font-bold rounded-lg shadow-sm whitespace-nowrap">
+                            ↓ Join Key: 고객 ID ↓
+                        </span>
+                        <div class="flex-1 h-px bg-slate-200"></div>
+                    </div>
+
+                    <!-- Step 2: Metrics -->
+                    <div class="border border-slate-200 rounded-2xl p-4">
+                        <div class="flex items-center justify-between mb-3">
+                            <span class="px-2 py-0.5 bg-emerald-100 text-emerald-700 rounded text-xs font-bold uppercase tracking-widest">2단계</span>
+                            <span class="text-slate-400 text-xs">고객 ID 단위 4개 성과지표 집계</span>
+                        </div>
+                        <div class="grid grid-cols-2 gap-3">
+                            <div class="p-3 bg-slate-50 rounded-xl border border-slate-100">
+                                <div class="text-blue-500 font-mono text-xs font-bold mb-1">Metric 01</div>
+                                <div class="font-bold text-slate-800 text-xs mb-1">확정 매출</div>
+                                <div class="text-xs text-slate-500">보정 완료된 정밀 확정 실적 매출</div>
+                            </div>
+                            <div class="p-3 bg-slate-50 rounded-xl border border-slate-100">
+                                <div class="text-blue-500 font-mono text-xs font-bold mb-1">Metric 02</div>
+                                <div class="font-bold text-slate-800 text-xs mb-1">수익성 (이익률)</div>
+                                <div class="text-xs text-slate-500">VRB 심의 이익률 + PL 이익률 가중합산</div>
+                            </div>
+                            <div class="p-3 bg-slate-50 rounded-xl border border-slate-100">
+                                <div class="text-blue-500 font-mono text-xs font-bold mb-1">Metric 03</div>
+                                <div class="font-bold text-slate-800 text-xs mb-1">수주 잔고</div>
+                                <div class="text-xs text-slate-500">계약 변경 실시간 반영된 조정 잔여금</div>
+                            </div>
+                            <div class="p-3 bg-slate-50 rounded-xl border border-slate-100">
+                                <div class="text-blue-500 font-mono text-xs font-bold mb-1">Metric 04</div>
+                                <div class="font-bold text-slate-800 text-xs mb-1">GRR / NRR</div>
+                                <div class="text-xs text-slate-500">고객 유지율 및 순수익 유지율</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ───────────────────────────────────────────────── -->
+        <!-- SECTION 2: 산출 로직 -->
+        <!-- ───────────────────────────────────────────────── -->
+        <section id="section-logic" class="mb-16 scroll-mt-20">
+            <div class="flex items-center gap-3 mb-6">
+                <span class="section-num bg-blue-600 text-white">2</span>
+                <h2 class="text-xl font-bold text-slate-800">성과지표 산출 로직</h2>
+            </div>
+
+            <!-- 2.1 확정 매출 산출 및 보정 -->
+            <div class="bg-white rounded-2xl border border-slate-200 p-6 mb-6">
+                <h3 class="font-bold text-slate-800 mb-1 text-sm">2.1 확정 매출 산출 및 보정</h3>
+                <p class="text-xs text-slate-500 mb-5 leading-relaxed">
+                    고객 ID 단위로 집계된 확정 매출을 기준으로 합니다. 단, 사업자번호 없이 조직 간 보정 전표만 처리되는 일부 고객사는 원장에서 누락되므로 수기 보정이 필요합니다.
+                </p>
+
+                <div class="bg-amber-50 border border-amber-300 rounded-2xl p-5">
+                    <div class="flex items-center gap-2 mb-4">
+                        <span class="text-amber-500 text-lg">⚠️</span>
+                        <span class="font-bold text-amber-800 text-sm">매출 누락 보정 대상 고객 — 월별 수동 기입 필수</span>
+                    </div>
+
+                    <div class="mb-4 text-xs text-amber-800 leading-relaxed bg-white/60 border border-amber-200 rounded-xl p-4">
+                        <b>누락 발생 원인:</b> 사업팀 귀속 매출을 영업 귀속으로 보정하는 과정에서 사업자번호 없이 조직 간 전표 처리가 발생하여 고객단위 집계에서 누락됩니다.<br>
+                        아래 고객사들이 주요 보정 대상이며, 전체 합산 <b>월평균 4~5억 원</b> 규모입니다.
+                    </div>
+
+                    <div class="flex flex-wrap gap-2 mb-4">
+                        <span class="px-3 py-1.5 bg-white border border-amber-300 text-amber-800 rounded-lg text-xs font-semibold">에스원</span>
+                        <span class="px-3 py-1.5 bg-white border border-amber-300 text-amber-800 rounded-lg text-xs font-semibold">KGM</span>
+                        <span class="px-3 py-1.5 bg-white border border-amber-300 text-amber-800 rounded-lg text-xs font-semibold">토요타</span>
+                    </div>
+
+                    <div class="bg-amber-100 border border-amber-300 rounded-xl p-3 text-xs font-bold text-amber-900">
+                        📌 관리 규칙: 매월 보정 매출 발생 시 '사업팀 귀속 → 영업 귀속' 보정액을 <u>매출조정 수기테이블에 필수 수동 기입</u>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 2.2 수익성 산출 공식 -->
+            <div class="bg-white rounded-2xl border border-slate-200 p-6">
+                <h3 class="font-bold text-slate-800 mb-1 text-sm">2.2 수익성 산출 공식</h3>
+                <p class="text-xs text-slate-500 mb-6">손익별로 VRB 심의 이력 유무에 따라 적용 이익률이 달라집니다.</p>
+
+                <!-- Formula Diagram -->
+                <div class="flex flex-col md:flex-row items-stretch gap-0 md:gap-0 overflow-x-auto">
+
+                    <!-- Result box -->
+                    <div class="flex-shrink-0 flex items-center justify-center bg-blue-600 rounded-2xl md:rounded-r-none p-5 md:p-6 text-white text-center min-w-[130px]">
+                        <div>
+                            <div class="text-xs font-bold text-blue-200 uppercase tracking-widest mb-1">산출 이익</div>
+                            <div class="text-xl font-extrabold">총 이익금</div>
+                        </div>
+                    </div>
+
+                    <!-- Equals -->
+                    <div class="flex items-center justify-center px-3 text-slate-400 font-bold text-2xl flex-shrink-0 py-2 md:py-0">=</div>
+
+                    <!-- Term A -->
+                    <div class="flex-1 border-2 border-blue-200 bg-blue-50 rounded-2xl md:rounded-r-none p-5 min-w-[200px]">
+                        <div class="text-xs font-bold text-blue-600 uppercase tracking-widest mb-2">VRB 심의 이력 있는 손익</div>
+                        <div class="font-bold text-slate-800 text-sm leading-relaxed">
+                            확정매출
+                            <span class="text-blue-400 mx-1">×</span>
+                            <span class="bg-blue-100 text-blue-700 px-2 py-0.5 rounded font-bold">VRB 가중평균 이익률</span>
+                        </div>
+                        <div class="text-xs text-slate-500 mt-2">반영이익합계 ÷ 반영매출합계로 계산</div>
+                    </div>
+
+                    <!-- Plus -->
+                    <div class="flex items-center justify-center px-3 text-slate-400 font-bold text-2xl flex-shrink-0 py-2 md:py-0">+</div>
+
+                    <!-- Term B -->
+                    <div class="flex-1 border-2 border-emerald-200 bg-emerald-50 rounded-2xl p-5 min-w-[200px]">
+                        <div class="text-xs font-bold text-emerald-600 uppercase tracking-widest mb-2">VRB 심의 이력 없는 손익</div>
+                        <div class="font-bold text-slate-800 text-sm leading-relaxed">
+                            확정매출
+                            <span class="text-emerald-500 mx-1">×</span>
+                            <span class="bg-emerald-100 text-emerald-700 px-2 py-0.5 rounded font-bold">PL 이익률 기준값</span>
+                        </div>
+                        <div class="text-xs text-slate-500 mt-2">수기 테이블에 사전 정의된 고정 기준값</div>
+                    </div>
+                </div>
+
+                <!-- Key Point -->
+                <div class="mt-5 bg-slate-50 border border-slate-200 rounded-xl p-4 text-xs text-slate-600 flex gap-3 items-start">
+                    <span class="text-slate-400 flex-shrink-0 text-base">💡</span>
+                    <div>
+                        <b>가중평균 이익률</b> 계산 시 단순 산술평균을 사용하면 안 됩니다.
+                        동일 손익에 여러 심의가 존재할 경우 반드시 <b>[반영이익 합계 ÷ 반영매출 합계]</b> 방식으로 산출합니다.
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ───────────────────────────────────────────────── -->
+        <!-- SECTION 3: 예외 규칙 (인수인계 핵심) -->
+        <!-- ───────────────────────────────────────────────── -->
+        <section id="section-exceptions" class="mb-16 scroll-mt-20">
+            <div class="flex items-center gap-3 mb-2">
+                <span class="section-num bg-red-500 text-white">!</span>
+                <h2 class="text-xl font-bold text-slate-800">특정 고객사 예외 처리 규칙</h2>
+            </div>
+            <p class="text-xs text-slate-500 ml-10 mb-6">일반 로직을 그대로 적용하면 왜곡이 발생하는 고객사입니다. 반드시 숙지하세요.</p>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+
+                <!-- Exception 1: Naver Koramko -->
+                <div class="critical-card bg-white rounded-2xl border-2 border-red-100 overflow-hidden">
+                    <div class="bg-red-500 px-5 py-3 flex items-center justify-between">
+                        <div class="flex items-center gap-2">
+                            <span class="text-white font-bold text-sm">네이버 코람코 가산센터 (IDC)</span>
+                        </div>
+                        <span class="px-2 py-0.5 bg-white/20 text-white text-xs font-bold rounded">예외 #1</span>
+                    </div>
+                    <div class="p-5">
+                        <!-- Problem -->
+                        <div class="flex items-start gap-3 mb-4 p-3 bg-red-50 rounded-xl border border-red-100">
+                            <span class="text-red-400 flex-shrink-0 text-sm mt-0.5">✗ 문제</span>
+                            <div class="text-xs text-slate-600 leading-relaxed">
+                                심의 규모가 비대하고 이익률이 <b class="text-red-600">약 1.53%</b>로 극히 낮으나, 초기 매출이 과소 계상되어 이익률 왜곡 발생
+                            </div>
+                        </div>
+                        <!-- Solution -->
+                        <div class="flex items-start gap-3 p-3 bg-blue-50 rounded-xl border border-blue-100">
+                            <span class="text-blue-500 flex-shrink-0 text-sm mt-0.5">✓ 조정</span>
+                            <div class="text-xs text-slate-700 leading-relaxed">
+                                심의상 매출 대신 <b class="text-blue-700">실제 청구 매출(Billing) 기준으로 역산</b> 적용
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Exception 2: KEPCO -->
+                <div class="critical-card bg-white rounded-2xl border-2 border-red-100 overflow-hidden">
+                    <div class="bg-red-500 px-5 py-3 flex items-center justify-between">
+                        <div class="flex items-center gap-2">
+                            <span class="text-white font-bold text-sm">한전 (KEPCO) 전력통신</span>
+                        </div>
+                        <span class="px-2 py-0.5 bg-white/20 text-white text-xs font-bold rounded">예외 #2</span>
+                    </div>
+                    <div class="p-5">
+                        <!-- Problem -->
+                        <div class="flex items-start gap-3 mb-4 p-3 bg-red-50 rounded-xl border border-red-100">
+                            <span class="text-red-400 flex-shrink-0 text-sm mt-0.5">✗ 문제</span>
+                            <div class="text-xs text-slate-600 leading-relaxed">
+                                당사 매출 비중이 <b class="text-red-600">매우 크나</b>, 등록된 VRB 심의 규모가 극히 작아 일반 로직 적용 시 정합성 훼손
+                            </div>
+                        </div>
+                        <!-- Solution -->
+                        <div class="flex items-start gap-3 p-3 bg-blue-50 rounded-xl border border-blue-100">
+                            <span class="text-blue-500 flex-shrink-0 text-sm mt-0.5">✓ 조정</span>
+                            <div class="text-xs text-slate-700 leading-relaxed">
+                                심의 유무와 무관하게 전력통신 손익 전체에 <b class="text-blue-700">PL 이익률 일괄 강제 적용</b>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Exception Summary Table -->
+            <div class="mt-6 bg-white rounded-2xl border border-slate-200 overflow-hidden">
+                <div class="px-6 py-4 border-b border-slate-100 bg-slate-50">
+                    <h4 class="font-bold text-slate-800 text-sm">예외 규칙 요약 비교</h4>
+                </div>
+                <div class="overflow-x-auto">
+                    <table class="w-full text-xs">
+                        <thead>
+                            <tr class="border-b border-slate-200 bg-slate-50 text-slate-600 font-bold">
+                                <th class="p-4 text-left">고객사</th>
+                                <th class="p-4 text-left">일반 로직</th>
+                                <th class="p-4 text-left text-red-600">왜곡 원인</th>
+                                <th class="p-4 text-left text-blue-600">적용 예외 규칙</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-slate-100 text-slate-600">
+                            <tr>
+                                <td class="p-4 font-semibold text-slate-800">네이버 코람코 (IDC)</td>
+                                <td class="p-4 text-slate-400">심의 매출 기준 역산</td>
+                                <td class="p-4 text-red-500">심의 이익률 1.53% + 초기 매출 과소</td>
+                                <td class="p-4 text-blue-600 font-medium">Billing 매출 기준으로 역산 적용</td>
+                            </tr>
+                            <tr>
+                                <td class="p-4 font-semibold text-slate-800">한전 KEPCO 전력통신</td>
+                                <td class="p-4 text-slate-400">VRB 이력 있으면 심의 이익률 적용</td>
+                                <td class="p-4 text-red-500">VRB 심의 규모 극소 → 대형 고객 대표성 없음</td>
+                                <td class="p-4 text-blue-600 font-medium">VRB 무관, PL 이익률 강제 일괄 적용</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+
+        <!-- ───────────────────────────────────────────────── -->
+        <!-- SECTION 4: 계산 예시 -->
+        <!-- ───────────────────────────────────────────────── -->
+        <section id="section-example" class="mb-16 scroll-mt-20">
+            <div class="flex items-center gap-3 mb-6">
+                <span class="section-num bg-blue-600 text-white">3</span>
+                <h2 class="text-xl font-bold text-slate-800">산출 상세 예시 — 그룹A 시뮬레이션 (2026.05)</h2>
+            </div>
+
+            <!-- Step 1: VRB Table -->
+            <div class="bg-white rounded-2xl border border-slate-200 overflow-hidden mb-4">
+                <div class="px-6 py-4 border-b border-slate-100 bg-slate-50 flex items-center justify-between flex-wrap gap-3">
+                    <div>
+                        <h3 class="font-bold text-slate-800 text-sm">Step 1. VRB 심의 데이터 — 반영개월 및 반영금액 산출</h3>
+                        <p class="text-xs text-slate-500 mt-0.5">'26년 5월 기준 수익성 산출 시 '26년 1~5월 중 매출이 유효한 개월 수를 반영개월수로 사용</p>
+                    </div>
+                    <div class="flex gap-2 flex-wrap">
+                        <span class="px-2.5 py-1 bg-amber-100 text-amber-700 rounded-lg text-xs font-bold">🟡 26년 내 종료</span>
+                        <span class="px-2.5 py-1 bg-blue-100 text-blue-700 rounded-lg text-xs font-bold">🔵 26년 이후 종료</span>
+                        <span class="px-2.5 py-1 bg-emerald-100 text-emerald-700 rounded-lg text-xs font-bold">🟢 26년 2월 이후 시작</span>
+                    </div>
+                </div>
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left">
+                        <thead>
+                            <tr class="border-b border-slate-200 bg-slate-50">
+                                <th class="p-3 pl-4">고객명</th>
+                                <th class="p-3">그룹명</th>
+                                <th class="p-3 text-center">손익<br>코드</th>
+                                <th class="p-3">손익명</th>
+                                <th class="p-3">심의명</th>
+                                <th class="p-3 text-center">계약<br>기간(월)</th>
+                                <th class="p-3 text-center">매출발생<br>시작월</th>
+                                <th class="p-3 text-center">매출발생<br>종료월</th>
+                                <th class="p-3 text-right">심의<br>총매출</th>
+                                <th class="p-3 text-right">심의<br>총이익</th>
+                                <th class="p-3 text-right">심의<br>이익률</th>
+                                <th class="p-3 text-right">심의<br>월매출</th>
+                                <th class="p-3 text-right">심의<br>월이익</th>
+                                <th class="p-3 text-right bg-blue-50 text-blue-700">반영<br>개월수</th>
+                                <th class="p-3 text-right bg-blue-50 text-blue-700">반영<br>매출</th>
+                                <th class="p-3 text-right bg-blue-50 text-blue-700">반영<br>이익</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-slate-100 text-slate-600">
+                            <!-- 전화(A) 심의 1: 25-06 ~ 26-03 → 종료 케이스 (26년 1~3월, 반영 3개월) -->
+                            <tr class="hover:bg-amber-50/30">
+                                <td class="p-3 pl-4 font-semibold text-slate-800 whitespace-nowrap">고객A</td>
+                                <td class="p-3 text-slate-500 whitespace-nowrap">그룹A</td>
+                                <td class="p-3 text-center font-mono font-bold text-slate-800">A</td>
+                                <td class="p-3 whitespace-nowrap">전화</td>
+                                <td class="p-3 whitespace-nowrap">심의-GS-A1</td>
+                                <td class="p-3 text-center">10</td>
+                                <td class="p-3 text-center text-slate-500">25-06</td>
+                                <td class="p-3 text-center font-bold text-amber-600">26-03 🟡</td>
+                                <td class="p-3 text-right">3.0억</td>
+                                <td class="p-3 text-right">3,600만</td>
+                                <td class="p-3 text-right">12.0%</td>
+                                <td class="p-3 text-right">3,000만</td>
+                                <td class="p-3 text-right">360만</td>
+                                <td class="p-3 text-right bg-blue-50/50 font-bold text-slate-800">3</td>
+                                <td class="p-3 text-right bg-blue-50/50">9,000만</td>
+                                <td class="p-3 text-right bg-blue-50/50">1,080만</td>
+                            </tr>
+                            <!-- 전화(A) 심의 2: 26-01 ~ 26-12 → 전체 반영 (26년 1~5월, 반영 5개월) -->
+                            <tr class="hover:bg-blue-50/20">
+                                <td class="p-3 pl-4 font-semibold text-slate-800 whitespace-nowrap">고객A</td>
+                                <td class="p-3 text-slate-500 whitespace-nowrap">그룹A</td>
+                                <td class="p-3 text-center font-mono font-bold text-slate-800">A</td>
+                                <td class="p-3 whitespace-nowrap">전화</td>
+                                <td class="p-3 whitespace-nowrap">심의-GS-A2</td>
+                                <td class="p-3 text-center">12</td>
+                                <td class="p-3 text-center text-slate-500">26-01</td>
+                                <td class="p-3 text-center text-blue-600">26-12 🔵</td>
+                                <td class="p-3 text-right">4.8억</td>
+                                <td class="p-3 text-right">6,720만</td>
+                                <td class="p-3 text-right">14.0%</td>
+                                <td class="p-3 text-right">4,000만</td>
+                                <td class="p-3 text-right">560만</td>
+                                <td class="p-3 text-right bg-blue-50/50 font-bold text-slate-800">5</td>
+                                <td class="p-3 text-right bg-blue-50/50">2억</td>
+                                <td class="p-3 text-right bg-blue-50/50">2,800만</td>
+                            </tr>
+                            <!-- IDC(I) 심의 1: 24-09 ~ 27-08 → 26년 넘어 (반영 5개월) -->
+                            <tr class="hover:bg-blue-50/20">
+                                <td class="p-3 pl-4 font-semibold text-slate-800 whitespace-nowrap">고객A</td>
+                                <td class="p-3 text-slate-500 whitespace-nowrap">그룹A</td>
+                                <td class="p-3 text-center font-mono font-bold text-slate-800">I</td>
+                                <td class="p-3 whitespace-nowrap">IDC</td>
+                                <td class="p-3 whitespace-nowrap">심의-GS-I1</td>
+                                <td class="p-3 text-center">36</td>
+                                <td class="p-3 text-center text-slate-500">24-09</td>
+                                <td class="p-3 text-center text-blue-600">27-08 🔵</td>
+                                <td class="p-3 text-right">21.6억</td>
+                                <td class="p-3 text-right">1.73억</td>
+                                <td class="p-3 text-right">8.0%</td>
+                                <td class="p-3 text-right">6,000만</td>
+                                <td class="p-3 text-right">480만</td>
+                                <td class="p-3 text-right bg-blue-50/50 font-bold text-slate-800">5</td>
+                                <td class="p-3 text-right bg-blue-50/50">3억</td>
+                                <td class="p-3 text-right bg-blue-50/50">2,400만</td>
+                            </tr>
+                            <!-- IDC(I) 심의 2 - 홈쇼핑: 26-03 ~ 27-02 → 26년 2월 이후 시작 케이스 (반영 3개월: 3~5월) -->
+                            <tr class="hover:bg-emerald-50/30">
+                                <td class="p-3 pl-4 font-semibold text-slate-800 whitespace-nowrap">고객B</td>
+                                <td class="p-3 text-slate-500 whitespace-nowrap">그룹A</td>
+                                <td class="p-3 text-center font-mono font-bold text-slate-800">I</td>
+                                <td class="p-3 whitespace-nowrap">IDC</td>
+                                <td class="p-3 whitespace-nowrap">심의-GS-I2</td>
+                                <td class="p-3 text-center">12</td>
+                                <td class="p-3 text-center font-bold text-emerald-700">26-03 🟢</td>
+                                <td class="p-3 text-center text-blue-600">27-02 🔵</td>
+                                <td class="p-3 text-right">3.6억</td>
+                                <td class="p-3 text-right">3,600만</td>
+                                <td class="p-3 text-right">10.0%</td>
+                                <td class="p-3 text-right">3,000만</td>
+                                <td class="p-3 text-right">300만</td>
+                                <td class="p-3 text-right bg-blue-50/50 font-bold text-slate-800">3</td>
+                                <td class="p-3 text-right bg-blue-50/50">9,000만</td>
+                                <td class="p-3 text-right bg-blue-50/50">900만</td>
+                            </tr>
+                            <!-- 인터넷(B) 심의 1 - 홈쇼핑: 25-02 ~ 27-01 → 26년 넘어 (반영 5개월) -->
+                            <tr class="hover:bg-blue-50/20">
+                                <td class="p-3 pl-4 font-semibold text-slate-800 whitespace-nowrap">고객B</td>
+                                <td class="p-3 text-slate-500 whitespace-nowrap">그룹A</td>
+                                <td class="p-3 text-center font-mono font-bold text-slate-800">B</td>
+                                <td class="p-3 whitespace-nowrap">인터넷</td>
+                                <td class="p-3 whitespace-nowrap">심의-GS-B1</td>
+                                <td class="p-3 text-center">24</td>
+                                <td class="p-3 text-center text-slate-500">25-02</td>
+                                <td class="p-3 text-center text-blue-600">27-01 🔵</td>
+                                <td class="p-3 text-right">4.8억</td>
+                                <td class="p-3 text-right">7,200만</td>
+                                <td class="p-3 text-right">15.0%</td>
+                                <td class="p-3 text-right">2,000만</td>
+                                <td class="p-3 text-right">300만</td>
+                                <td class="p-3 text-right bg-blue-50/50 font-bold text-slate-800">5</td>
+                                <td class="p-3 text-right bg-blue-50/50">1억</td>
+                                <td class="p-3 text-right bg-blue-50/50">1,500만</td>
+                            </tr>
+                            <!-- 인터넷(B) 심의 2 - 홈쇼핑: 25-08 ~ 26-01 → 26년 내 종료 케이스 (반영 1개월: 1월만) -->
+                            <tr class="hover:bg-amber-50/30">
+                                <td class="p-3 pl-4 font-semibold text-slate-800 whitespace-nowrap">고객B</td>
+                                <td class="p-3 text-slate-500 whitespace-nowrap">그룹A</td>
+                                <td class="p-3 text-center font-mono font-bold text-slate-800">B</td>
+                                <td class="p-3 whitespace-nowrap">인터넷</td>
+                                <td class="p-3 whitespace-nowrap">심의-GS-B2</td>
+                                <td class="p-3 text-center">6</td>
+                                <td class="p-3 text-center text-slate-500">25-08</td>
+                                <td class="p-3 text-center font-bold text-amber-600">26-01 🟡</td>
+                                <td class="p-3 text-right">1.2억</td>
+                                <td class="p-3 text-right">1,560만</td>
+                                <td class="p-3 text-right">13.0%</td>
+                                <td class="p-3 text-right">2,000만</td>
+                                <td class="p-3 text-right">260만</td>
+                                <td class="p-3 text-right bg-blue-50/50 font-bold text-slate-800">1</td>
+                                <td class="p-3 text-right bg-blue-50/50">2,000만</td>
+                                <td class="p-3 text-right bg-blue-50/50">260만</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <!-- Legend note -->
+                <div class="px-5 py-3 border-t border-slate-100 bg-slate-50 text-xs text-slate-500 flex flex-wrap gap-4">
+                    <span>🟡 <b>26년 내 종료:</b> '26년 1월~종료월까지만 반영</span>
+                    <span>🔵 <b>'26년 이후 종료:</b> '26년 1~5월 전체 반영 (단, 시작월이 '26년인 경우 시작월~5월)</span>
+                    <span>🟢 <b>'26년 2월 이후 시작:</b> 시작월~5월까지만 반영</span>
+                </div>
+            </div>
+
+            <!-- Step 2: Weighted Average Calc -->
+            <div class="bg-blue-600 rounded-2xl p-6 mb-4 text-white">
+                <h4 class="font-bold text-sm mb-1 flex items-center gap-2">
+                    <span class="w-5 h-5 bg-white/20 rounded-full flex items-center justify-center text-xs font-bold">2</span>
+                    Step 2. 손익별 가중평균 이익률 산출
+                </h4>
+                <p class="text-xs text-blue-200 mb-5">동일 손익에 여러 심의가 존재 → 반영이익 합계 ÷ 반영매출 합계</p>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div class="bg-white/15 rounded-xl p-4 border border-white/20">
+                        <div class="font-bold text-sm mb-3">📞 전화 (A)</div>
+                        <div class="text-xs font-mono space-y-1 text-blue-100">
+                            <div>반영매출: 9,000만 + 2억</div>
+                            <div class="pl-4 text-white">= <b>2억 9,000만</b></div>
+                            <div>반영이익: 1,080만 + 2,800만</div>
+                            <div class="pl-4 text-white">= <b>3,880만</b></div>
+                        </div>
+                        <div class="mt-3 pt-3 border-t border-white/20 font-bold text-yellow-300 text-sm">
+                            적용 이익률: 3,880만 / 2.9억 = <span class="text-lg">13.4%</span>
+                        </div>
+                    </div>
+                    <div class="bg-white/15 rounded-xl p-4 border border-white/20">
+                        <div class="font-bold text-sm mb-3">🏢 IDC (I)</div>
+                        <div class="text-xs font-mono space-y-1 text-blue-100">
+                            <div>반영매출: 3억 + 9,000만</div>
+                            <div class="pl-4 text-white">= <b>3억 9,000만</b></div>
+                            <div>반영이익: 2,400만 + 900만</div>
+                            <div class="pl-4 text-white">= <b>3,300만</b></div>
+                        </div>
+                        <div class="mt-3 pt-3 border-t border-white/20 font-bold text-yellow-300 text-sm">
+                            적용 이익률: 3,300만 / 3.9억 = <span class="text-lg">8.5%</span>
+                        </div>
+                    </div>
+                    <div class="bg-white/15 rounded-xl p-4 border border-white/20">
+                        <div class="font-bold text-sm mb-3">🌐 인터넷 (B)</div>
+                        <div class="text-xs font-mono space-y-1 text-blue-100">
+                            <div>반영매출: 1억 + 2,000만</div>
+                            <div class="pl-4 text-white">= <b>1억 2,000만</b></div>
+                            <div>반영이익: 1,500만 + 260만</div>
+                            <div class="pl-4 text-white">= <b>1,760만</b></div>
+                        </div>
+                        <div class="mt-3 pt-3 border-t border-white/20 font-bold text-yellow-300 text-sm">
+                            적용 이익률: 1,760만 / 1.2억 = <span class="text-lg">14.7%</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Step 3: Final aggregation -->
+            <div class="bg-white rounded-2xl border border-slate-200 overflow-hidden">
+                <div class="px-6 py-4 border-b border-slate-100 bg-slate-50 flex items-center justify-between">
+                    <div>
+                        <h3 class="font-bold text-slate-800 text-sm">Step 3. 그룹A 최종 성과 합산 (2026.05 실적 마트)</h3>
+                        <p class="text-xs text-slate-500 mt-0.5">심의 가중평균 이익률(파란색)과 PL 이익률(초록색)을 결합한 통합 산출</p>
+                    </div>
+                </div>
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left">
+                        <thead>
+                            <tr class="border-b border-slate-200 text-slate-600 font-bold bg-slate-50">
+                                <th class="p-4 pl-5">손익코드</th>
+                                <th class="p-4">손익명</th>
+                                <th class="p-4">이익률 근거</th>
+                                <th class="p-4 text-right">확정 매출 (A)</th>
+                                <th class="p-4 text-right">적용 이익률 (B)</th>
+                                <th class="p-4 text-right text-blue-600">산출 이익 (A × B)</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-slate-100 text-slate-600">
+                            <tr class="hover:bg-slate-50">
+                                <td class="p-4 pl-5 font-mono font-bold text-slate-800">A</td>
+                                <td class="p-4">전화</td>
+                                <td class="p-4"><span class="badge badge-blue">심의 가중평균</span> GS-A1, GS-A2</td>
+                                <td class="p-4 text-right">290,000,000 원</td>
+                                <td class="p-4 text-right font-bold text-blue-700">13.4%</td>
+                                <td class="p-4 text-right text-blue-600 font-medium">38,860,000 원</td>
+                            </tr>
+                            <tr class="hover:bg-slate-50">
+                                <td class="p-4 pl-5 font-mono font-bold text-slate-800">I</td>
+                                <td class="p-4">IDC</td>
+                                <td class="p-4"><span class="badge badge-blue">심의 가중평균</span> GS-I1, GS-I2</td>
+                                <td class="p-4 text-right">390,000,000 원</td>
+                                <td class="p-4 text-right font-bold text-blue-700">8.5%</td>
+                                <td class="p-4 text-right text-blue-600 font-medium">33,150,000 원</td>
+                            </tr>
+                            <tr class="hover:bg-slate-50">
+                                <td class="p-4 pl-5 font-mono font-bold text-slate-800">B</td>
+                                <td class="p-4">인터넷</td>
+                                <td class="p-4"><span class="badge badge-blue">심의 가중평균</span> GS-B1, GS-B2</td>
+                                <td class="p-4 text-right">120,000,000 원</td>
+                                <td class="p-4 text-right font-bold text-blue-700">14.7%</td>
+                                <td class="p-4 text-right text-blue-600 font-medium">17,640,000 원</td>
+                            </tr>
+                            <tr class="hover:bg-slate-50">
+                                <td class="p-4 pl-5 font-mono font-bold text-slate-800">S</td>
+                                <td class="p-4">메시징</td>
+                                <td class="p-4"><span class="badge badge-green">PL 이익률</span></td>
+                                <td class="p-4 text-right">80,000,000 원</td>
+                                <td class="p-4 text-right font-bold text-emerald-600">7.0%</td>
+                                <td class="p-4 text-right text-blue-600 font-medium">5,600,000 원</td>
+                            </tr>
+                            <tr class="hover:bg-slate-50">
+                                <td class="p-4 pl-5 font-mono font-bold text-slate-800">M</td>
+                                <td class="p-4">M2M</td>
+                                <td class="p-4"><span class="badge badge-green">PL 이익률</span></td>
+                                <td class="p-4 text-right">40,000,000 원</td>
+                                <td class="p-4 text-right font-bold text-emerald-600">5.0%</td>
+                                <td class="p-4 text-right text-blue-600 font-medium">2,000,000 원</td>
+                            </tr>
+                            <tr class="bg-slate-900 text-white font-bold">
+                                <td class="p-4 pl-5" colspan="2">합계</td>
+                                <td class="p-4 text-slate-400 text-xs">그룹A 전체 성과</td>
+                                <td class="p-4 text-right">920,000,000 원</td>
+                                <td class="p-4 text-right text-yellow-300">최종 이익률: <span class="text-base">10.6%</span></td>
+                                <td class="p-4 text-right text-yellow-300">97,250,000 원</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+
+        <!-- ───────────────────────────────────────────────── -->
+        <!-- SECTION 5: 배치 일정 -->
+        <!-- ───────────────────────────────────────────────── -->
+        <section id="section-schedule" class="scroll-mt-20">
+            <div class="flex items-center gap-3 mb-6">
+                <span class="section-num bg-blue-600 text-white">4</span>
+                <h2 class="text-xl font-bold text-slate-800">데이터 배치 및 릴리즈 일정</h2>
+            </div>
+
+            <!-- Timeline -->
+            <div class="bg-white rounded-2xl border border-slate-200 p-6 mb-6">
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-0 relative">
+
+                    <!-- Step 1 -->
+                    <div class="relative flex flex-col items-center text-center p-6">
+                        <div class="w-14 h-14 bg-slate-100 rounded-2xl flex items-center justify-center mb-4 text-slate-700 text-xl font-extrabold">01</div>
+                        <div class="text-xs text-slate-400 font-bold uppercase tracking-widest mb-1">Business Day</div>
+                        <div class="text-xl font-extrabold text-slate-800 mb-2">매월 6 영업일</div>
+                        <div class="text-xs text-slate-500 leading-relaxed">
+                            기업 DW 확정매출 및 부문별 PL 계정 산출 마감.<br>
+                            달력상 <b>9~10일경</b> 유동적
+                        </div>
+                        <!-- Arrow right (md only) -->
+                        <div class="hidden md:flex absolute right-0 top-1/2 -translate-y-1/2 translate-x-1/2 z-10 w-8 h-8 bg-blue-600 rounded-full items-center justify-center text-white text-xs">→</div>
+                    </div>
+
+                    <!-- Step 2 -->
+                    <div class="relative flex flex-col items-center text-center p-6 border-y md:border-y-0 md:border-x border-slate-100">
+                        <div class="w-14 h-14 bg-blue-100 rounded-2xl flex items-center justify-center mb-4 text-blue-600 text-xl font-extrabold">02</div>
+                        <div class="text-xs text-blue-500 font-bold uppercase tracking-widest mb-1">Calendar Day</div>
+                        <div class="text-xl font-extrabold text-slate-800 mb-2">매월 11일 04:00</div>
+                        <div class="text-xs text-slate-500 leading-relaxed">
+                            DW 원천 데이터 → 분석 데이터레이크(DL) 이관 및 적재 자동 완료.<br>
+                            <b>공휴일 무관 자동 수행</b>
+                        </div>
+                        <div class="hidden md:flex absolute right-0 top-1/2 -translate-y-1/2 translate-x-1/2 z-10 w-8 h-8 bg-blue-600 rounded-full items-center justify-center text-white text-xs">→</div>
+                    </div>
+
+                    <!-- Step 3 -->
+                    <div class="flex flex-col items-center text-center p-6 bg-blue-600 rounded-2xl text-white">
+                        <div class="w-14 h-14 bg-white/20 rounded-2xl flex items-center justify-center mb-4 text-white text-xl font-extrabold">03</div>
+                        <div class="text-xs text-blue-200 font-bold uppercase tracking-widest mb-1">Calendar Day</div>
+                        <div class="text-xl font-extrabold mb-2">매월 11일 05:00~</div>
+                        <div class="text-xs text-blue-100 leading-relaxed">
+                            DL 원장 조인 → <b>성과관리 데이터 마트</b> 구축 완료.<br>
+                            스케줄러 감지 후 유기적 동작
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Holiday Handling -->
+            <div class="bg-slate-900 rounded-2xl p-6 flex gap-4 items-start">
+                <div class="text-2xl flex-shrink-0">📅</div>
+                <div>
+                    <h5 class="font-bold text-blue-400 mb-2 text-sm">휴일 및 마감 지연 시 대응 (Holiday Handling)</h5>
+                    <p class="text-xs text-slate-400 leading-relaxed">
+                        연휴나 월초 긴 공휴일로 <b class="text-white">6영업일 마감이 11일 이후로 늦어지는 경우</b>에도,
+                        시스템은 정해진 스케줄러(11일)에 따라 상태 확인 루프를 동작합니다.
+                        DW 원장 생성이 감지되는 시점을 즉시 파악하여 후속 배치를 연쇄 트리거하므로
+                        <b class="text-white">인위적인 수동 조정은 불필요합니다.</b>
+                    </p>
+                </div>
+            </div>
+        </section>
+
+    </div>
+</main>
+
+<footer class="border-t border-slate-200 bg-white py-8">
+    <div class="max-w-6xl mx-auto px-6 text-center text-xs text-slate-400">
+        © 2026 성과관리 시스템 운영 파트. 인수인계 기술 문서의 소유권은 개발운영본부에 귀속됩니다.
+    </div>
+</footer>
+
+<script>
+    window.addEventListener('scroll', () => {
+        const sections = document.querySelectorAll('section');
+        const navLinks = document.querySelectorAll('.nav-link');
+        let current = '';
+        sections.forEach(s => {
+            if (pageYOffset >= s.offsetTop - 120) current = s.getAttribute('id');
+        });
+        navLinks.forEach(link => {
+            link.classList.remove('active');
+            if (link.getAttribute('href').includes(current)) link.classList.add('active');
+        });
+    });
+</script>
+
+</body>
+</html>

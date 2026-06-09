@@ -1,0 +1,1055 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>성과관리 월별 작업 체크리스트</title>
+  <link href="https://fonts.googleapis.com/css2?family=Pretendard:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
+  <style>
+    /* === RESET & CSS VARS === */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg:        #faf9f5;
+      --card:      #efe9de;
+      --border:    #c8bfb4;
+      --muted:     #f5f0e8;
+      --orange:    #cc785c;
+      --orange-dk: #a9583e;
+      --text:      #141413;
+      --sub:       #6c6a64;
+      --body-text: #3d3d3a;
+      --green:     #2e7a6a;
+      --green-bg:  #d4ede8;
+      --font:      'Pretendard', sans-serif;
+
+      --slide-padding: clamp(1.2rem, 4vw, 3.5rem);
+      --title-size:    clamp(1.4rem, 3.5vw, 2.4rem);
+      --h2-size:       clamp(1.1rem, 2.5vw, 1.7rem);
+      --h3-size:       clamp(0.9rem, 1.8vw, 1.2rem);
+      --body-size:     clamp(0.72rem, 1.3vw, 0.95rem);
+      --small-size:    clamp(0.62rem, 1vw, 0.8rem);
+      --ease:          cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    /* === VIEWPORT BASE (mandatory) === */
+    html, body { height: 100%; overflow-x: hidden; }
+    html { scroll-snap-type: y mandatory; scroll-behavior: smooth; }
+
+    .slide {
+      width: 100vw;
+      height: 100vh;
+      height: 100dvh;
+      overflow: hidden;
+      scroll-snap-align: start;
+      display: flex;
+      flex-direction: column;
+      position: relative;
+      background: var(--bg);
+      font-family: var(--font);
+      color: var(--text);
+    }
+
+    @media (max-height: 700px) {
+      :root { --slide-padding: clamp(0.8rem, 3vw, 2rem); --title-size: clamp(1.2rem, 3vw, 1.8rem); }
+    }
+    @media (max-height: 600px) {
+      :root { --slide-padding: clamp(0.5rem, 2.5vw, 1.5rem); --title-size: clamp(1rem, 2.5vw, 1.4rem); --body-size: clamp(0.65rem, 1vw, 0.82rem); }
+    }
+    @media (max-height: 500px) {
+      :root { --slide-padding: clamp(0.4rem, 2vw, 1rem); --title-size: clamp(0.9rem, 2.5vw, 1.2rem); }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after { animation-duration: 0.01ms !important; transition-duration: 0.2s !important; }
+    }
+
+    /* === PROGRESS BAR === */
+    #progress-bar {
+      position: fixed; top: 0; left: 0; height: 3px;
+      background: linear-gradient(90deg, var(--orange), var(--orange-dk));
+      width: 0%; z-index: 1000;
+      transition: width 0.3s var(--ease);
+    }
+
+    /* === NAV DOTS === */
+    #nav-dots {
+      position: fixed; right: clamp(8px, 2vw, 20px); top: 50%; transform: translateY(-50%);
+      display: flex; flex-direction: column; gap: clamp(6px, 1vw, 10px); z-index: 100;
+    }
+    .nav-dot {
+      width: clamp(6px, 1vw, 8px); height: clamp(6px, 1vw, 8px);
+      border-radius: 50%; background: var(--border); cursor: pointer;
+      transition: all 0.3s var(--ease); border: none; padding: 0;
+    }
+    .nav-dot.active { background: var(--orange); transform: scale(1.4); }
+
+    /* === SLIDE COUNTER === */
+    #slide-counter {
+      position: fixed; bottom: clamp(10px, 2vh, 20px); right: clamp(12px, 2vw, 24px);
+      font-size: var(--small-size); color: var(--sub); font-weight: 600;
+      z-index: 100; font-family: var(--font);
+    }
+
+    /* === REVEAL ANIMATIONS === */
+    .reveal {
+      opacity: 0; transform: translateY(20px);
+      transition: opacity 0.55s var(--ease), transform 0.55s var(--ease);
+    }
+    .slide.visible .reveal { opacity: 1; transform: translateY(0); }
+    .slide.visible .reveal:nth-child(1) { transition-delay: 0.05s; }
+    .slide.visible .reveal:nth-child(2) { transition-delay: 0.15s; }
+    .slide.visible .reveal:nth-child(3) { transition-delay: 0.25s; }
+    .slide.visible .reveal:nth-child(4) { transition-delay: 0.35s; }
+    .slide.visible .reveal:nth-child(5) { transition-delay: 0.45s; }
+    .slide.visible .reveal:nth-child(6) { transition-delay: 0.55s; }
+
+    /* === SHARED COMPONENTS === */
+    .sec-pill {
+      display: inline-flex; align-items: center; gap: 10px;
+      padding: 5px 18px 5px 5px; background: var(--card);
+      border-radius: 999px; font-size: clamp(0.95rem, 2vw, 1.25rem);
+      font-weight: 800; color: var(--text); margin-bottom: clamp(8px, 1.5vh, 16px);
+    }
+    .sec-pill span {
+      width: clamp(24px, 3vw, 32px); height: clamp(24px, 3vw, 32px);
+      background: var(--orange); color: #faf9f5; border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-size: clamp(11px, 1.4vw, 14px); font-weight: 800;
+    }
+
+    .step-pill {
+      display: inline-flex; align-items: center; gap: 6px;
+      background: #3d3d3a; color: #faf9f5; border-radius: 999px;
+      padding: 4px 12px 4px 5px; font-size: var(--small-size); font-weight: 700;
+      margin-bottom: clamp(6px, 1vh, 12px);
+    }
+    .step-pill span {
+      background: var(--orange); color: #faf9f5;
+      width: clamp(18px, 2vw, 22px); height: clamp(18px, 2vw, 22px);
+      border-radius: 50%; display: flex; align-items: center; justify-content: center;
+      font-size: clamp(10px, 1.2vw, 12px);
+    }
+
+    .badge {
+      display: inline-flex; align-items: center; padding: 2px 7px;
+      border-radius: 4px; font-size: var(--small-size); font-weight: 700;
+    }
+    .b-orange { background: var(--card); color: var(--orange); }
+    .b-green  { background: var(--green-bg); color: var(--green); }
+    .b-amber  { background: var(--muted); color: var(--sub); }
+    .b-red    { background: #fde8e0; color: #b94a2d; }
+    .b-if     { background: #3d3d3a; color: #faf9f5; }
+
+    .warn-box {
+      background: #faf9f5; border: 1.5px solid var(--orange); border-radius: 10px;
+      padding: clamp(8px, 1.5vh, 14px) clamp(10px, 2vw, 16px);
+    }
+
+    /* === SLIDE HEADER (orange gradient) === */
+    .slide-header {
+      background: linear-gradient(135deg, var(--orange) 0%, var(--orange-dk) 100%);
+      color: #faf9f5; padding: clamp(10px, 1.8vh, 18px) clamp(16px, 3vw, 28px);
+      flex-shrink: 0;
+    }
+    .slide-header .num {
+      font-size: var(--small-size); font-weight: 700; opacity: .7;
+      text-transform: uppercase; letter-spacing: .1em; margin-bottom: 2px;
+    }
+    .slide-header h2 { font-size: var(--h2-size); font-weight: 800; }
+    .slide-header p  { font-size: var(--body-size); opacity: .8; margin-top: 2px; }
+
+    /* === CHECKLIST ITEMS === */
+    .check-item {
+      display: flex; align-items: flex-start; gap: clamp(8px, 1.5vw, 14px);
+      padding: clamp(7px, 1.2vh, 12px) clamp(10px, 2vw, 16px);
+      background: var(--muted); border-radius: 8px; cursor: pointer;
+      border: 1.5px solid transparent;
+      transition: background 0.2s, border-color 0.2s;
+      user-select: none;
+    }
+    .check-item:hover { background: #ece6da; border-color: var(--border); }
+    .check-item.done { background: var(--green-bg); border-color: #a8d9d0; }
+    .check-item.done .check-text { text-decoration: line-through; color: var(--sub); }
+
+    .check-icon {
+      width: clamp(18px, 2.2vw, 24px); height: clamp(18px, 2.2vw, 24px);
+      border-radius: 50%; border: 2px solid var(--border); flex-shrink: 0;
+      display: flex; align-items: center; justify-content: center;
+      font-size: clamp(10px, 1.3vw, 13px); background: #faf9f5;
+      transition: all 0.25s var(--ease);
+      margin-top: 1px;
+    }
+    .check-item.done .check-icon {
+      background: var(--green); border-color: var(--green); color: #fff;
+    }
+    .check-text {
+      font-size: var(--body-size); color: var(--body-text); line-height: 1.5;
+      transition: color 0.2s, text-decoration 0.2s;
+    }
+    .check-text b { color: var(--text); }
+    .check-sub {
+      font-size: var(--small-size); color: var(--sub); margin-top: 2px;
+      font-family: monospace;
+    }
+
+    /* === TIMELINE (vertical) === */
+    .tl-wrap { display: flex; flex-direction: column; }
+    .tl-item { display: flex; align-items: flex-start; gap: clamp(10px, 2vw, 16px); }
+    .tl-left { display: flex; flex-direction: column; align-items: center; flex-shrink: 0; }
+    .tl-icon {
+      width: clamp(32px, 4vw, 44px); height: clamp(32px, 4vw, 44px);
+      border-radius: 10px; display: flex; align-items: center; justify-content: center;
+      font-weight: 800; font-size: clamp(12px, 1.5vw, 16px);
+    }
+    .tl-line { width: 2px; background: var(--border); flex: 1; min-height: clamp(14px, 2vh, 24px); margin: 3px 0; }
+    .tl-body { padding-top: clamp(2px, 0.5vh, 6px); padding-bottom: clamp(10px, 2vh, 20px); }
+    .tl-title { font-size: var(--h3-size); font-weight: 800; color: var(--text); margin-bottom: 3px; }
+    .tl-desc  { font-size: var(--body-size); color: var(--sub); line-height: 1.6; }
+
+    /* === GRID 2-col === */
+    .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: clamp(8px, 1.5vw, 14px); }
+    @media (max-width: 700px) { .grid-2 { grid-template-columns: 1fr; } }
+
+    /* === CARD === */
+    .pcard {
+      background: var(--card); border: 1.5px solid var(--border);
+      border-radius: 12px; overflow: hidden;
+    }
+    .pcard-head {
+      padding: clamp(8px, 1.2vh, 12px) clamp(12px, 2vw, 18px);
+      border-bottom: 1.5px solid var(--border);
+      font-weight: 700; font-size: var(--body-size); color: var(--text);
+    }
+    .pcard-body { padding: clamp(8px, 1.5vh, 14px) clamp(12px, 2vw, 18px); }
+
+    /* === OPTION CARD (A/B/C) === */
+    .opt-card {
+      display: flex; gap: clamp(8px, 1.5vw, 14px); align-items: flex-start;
+      background: var(--muted); border-radius: 10px;
+      padding: clamp(8px, 1.2vh, 12px) clamp(10px, 2vw, 14px);
+      border: 1.5px solid var(--border);
+    }
+    .opt-letter {
+      width: clamp(28px, 3.5vw, 36px); height: clamp(28px, 3.5vw, 36px);
+      border-radius: 8px; display: flex; align-items: center; justify-content: center;
+      font-weight: 800; font-size: clamp(12px, 1.5vw, 15px); flex-shrink: 0;
+    }
+    .opt-letter.hi { background: var(--card); color: var(--orange); }
+    .opt-letter.lo { background: var(--muted); color: var(--sub); }
+    .opt-title { font-size: var(--body-size); font-weight: 700; color: var(--text); }
+    .opt-desc  { font-size: var(--small-size); color: var(--sub); line-height: 1.5; margin-top: 2px; }
+
+    /* ════════════════════════════════
+       SLIDE 1 — COVER
+    ════════════════════════════════ */
+    #slide-1 {
+      background: linear-gradient(135deg, var(--orange) 0%, var(--orange-dk) 100%);
+      color: #faf9f5;
+    }
+    #slide-1::before {
+      content: ''; position: absolute;
+      right: -80px; top: -80px; width: 340px; height: 340px;
+      border-radius: 50%; background: rgba(255,255,255,.06);
+    }
+    #slide-1::after {
+      content: ''; position: absolute;
+      right: 60px; bottom: -60px; width: 200px; height: 200px;
+      border-radius: 50%; background: rgba(255,255,255,.04);
+    }
+    .cover-inner {
+      position: relative; z-index: 1;
+      padding: var(--slide-padding);
+      display: flex; flex-direction: column; justify-content: center;
+      height: 100%;
+    }
+    .cover-tag {
+      font-size: var(--small-size); font-weight: 700; color: rgba(250,249,245,.6);
+      letter-spacing: .12em; text-transform: uppercase; margin-bottom: clamp(8px, 1.5vh, 16px);
+    }
+    .cover-title {
+      font-size: var(--title-size); font-weight: 800; line-height: 1.2;
+      margin-bottom: clamp(6px, 1vh, 12px);
+    }
+    .cover-sub {
+      font-size: var(--h3-size); color: rgba(250,249,245,.8); margin-bottom: clamp(16px, 3vh, 32px);
+      line-height: 1.5;
+    }
+    .stat-chips { display: flex; flex-wrap: wrap; gap: clamp(6px, 1.5vw, 12px); }
+    .stat-chip {
+      background: rgba(255,255,255,.1); border: 1px solid rgba(255,255,255,.15);
+      border-radius: 10px; padding: clamp(6px, 1vh, 10px) clamp(12px, 2vw, 18px);
+      text-align: center; min-width: clamp(80px, 12vw, 110px);
+    }
+    .stat-chip .val { font-size: clamp(1.1rem, 2.5vw, 1.6rem); font-weight: 800; }
+    .stat-chip .lbl { font-size: var(--small-size); color: rgba(250,249,245,.7); margin-top: 1px; }
+
+    /* ════════════════════════════════
+       SLIDE 2 — OVERVIEW TIMELINE
+    ════════════════════════════════ */
+    .ov-wrap {
+      display: flex; flex-direction: column; gap: 0;
+      padding: 0 var(--slide-padding) var(--slide-padding);
+      overflow: hidden;
+    }
+    .ov-item {
+      display: flex; align-items: flex-start; gap: clamp(10px, 2vw, 16px);
+      cursor: pointer; border-radius: 8px;
+      padding: clamp(5px, 0.8vh, 8px) clamp(6px, 1vw, 10px);
+      transition: background .15s;
+    }
+    .ov-item:hover { background: var(--muted); }
+    .ov-left { display: flex; flex-direction: column; align-items: center; flex-shrink: 0; }
+    .ov-dot {
+      width: clamp(28px, 3.5vw, 38px); height: clamp(28px, 3.5vw, 38px);
+      border-radius: 10px; display: flex; align-items: center; justify-content: center;
+      font-size: clamp(14px, 1.8vw, 18px); flex-shrink: 0;
+    }
+    .ov-line { width: 2px; background: var(--border); height: clamp(10px, 1.5vh, 18px); margin: 2px 0; }
+    .ov-body { padding-top: clamp(2px, 0.4vh, 5px); }
+    .ov-title { font-size: var(--body-size); font-weight: 800; color: var(--text); }
+    .ov-sub   { font-size: var(--small-size); color: var(--sub); margin-top: 1px; }
+    .ov-badge {
+      display: inline-block; margin-left: 6px;
+      font-size: var(--small-size); font-weight: 700;
+      padding: 1px 7px; border-radius: 4px;
+    }
+    .ov-badge.if   { background: #3d3d3a; color: #faf9f5; }
+    .ov-badge.else { background: var(--orange); color: #faf9f5; }
+
+    /* Flash event line */
+    .ov-event {
+      display: flex; align-items: center; gap: clamp(8px, 1.5vw, 14px);
+      margin: 0 0 0 clamp(4px, 0.8vw, 8px);
+    }
+    .ov-event-dot {
+      width: clamp(28px, 3.5vw, 38px); height: clamp(28px, 3.5vw, 38px);
+      background: var(--orange); border-radius: 10px;
+      display: flex; align-items: center; justify-content: center; font-size: 16px; flex-shrink: 0;
+    }
+    .ov-event-label {
+      background: var(--card); border: 1.5px solid var(--border);
+      border-radius: 7px; padding: clamp(4px, 0.6vh, 7px) clamp(10px, 1.5vw, 14px);
+      font-size: var(--body-size); font-weight: 700; color: var(--orange); flex: 1;
+    }
+
+    /* ════════════════════════════════
+       SLIDE 4 — BATCH AUTO
+    ════════════════════════════════ */
+    .auto-badge {
+      background: var(--green-bg); color: var(--green);
+      border: 1.5px solid #a8d9d0; border-radius: 8px;
+      padding: clamp(8px, 1.2vh, 12px) clamp(12px, 2vw, 18px);
+      font-size: var(--body-size); font-weight: 700;
+    }
+
+    /* ════════════════════════════════
+       SLIDE 5 — IF
+    ════════════════════════════════ */
+    .if-box {
+      background: #3d3d3a; color: #faf9f5; border-radius: 14px;
+      padding: clamp(14px, 2.5vh, 24px) clamp(16px, 3vw, 28px);
+    }
+    .if-box .if-tag {
+      font-size: var(--small-size); font-weight: 700; color: var(--orange);
+      letter-spacing: .1em; text-transform: uppercase; margin-bottom: 6px;
+    }
+    .if-box h3 { font-size: var(--h2-size); font-weight: 800; margin-bottom: 10px; }
+    .if-box p  { font-size: var(--body-size); color: rgba(250,249,245,.7); line-height: 1.6; }
+
+    .next-btn {
+      display: inline-flex; align-items: center; gap: 6px;
+      background: var(--orange); color: #faf9f5;
+      border: none; border-radius: 8px; cursor: pointer;
+      padding: clamp(7px, 1.2vh, 10px) clamp(14px, 2.5vw, 20px);
+      font-size: var(--body-size); font-weight: 700; font-family: var(--font);
+      transition: background 0.2s; margin-top: clamp(8px, 1.5vh, 14px);
+    }
+    .next-btn:hover { background: var(--orange-dk); }
+
+    /* ════════════════════════════════
+       SLIDE 8 — IRREGULAR
+    ════════════════════════════════ */
+    .irreg-tag {
+      background: var(--muted); border: 1.5px solid var(--border);
+      border-radius: 6px; padding: 2px 8px;
+      font-size: var(--small-size); font-weight: 700; color: var(--sub);
+    }
+    .irreg-item {
+      display: flex; align-items: center; gap: clamp(8px, 1.5vw, 12px);
+      padding: clamp(7px, 1.1vh, 10px) clamp(10px, 2vw, 14px);
+      background: var(--muted); border-radius: 8px; border: 1.5px solid var(--border);
+    }
+    .irreg-dot {
+      width: clamp(20px, 2.5vw, 26px); height: clamp(20px, 2.5vw, 26px);
+      border-radius: 6px; background: var(--card); border: 1.5px solid var(--border);
+      display: flex; align-items: center; justify-content: center;
+      font-size: clamp(11px, 1.3vw, 13px); flex-shrink: 0;
+    }
+
+    /* === UTILITY === */
+    .gap-stack { display: flex; flex-direction: column; gap: clamp(5px, 1vh, 10px); }
+    .gap-stack-sm { display: flex; flex-direction: column; gap: clamp(4px, 0.7vh, 7px); }
+    .inner { padding: var(--slide-padding); flex: 1; display: flex; flex-direction: column; justify-content: center; overflow: hidden; }
+    .inner-top { padding: var(--slide-padding); flex: 1; display: flex; flex-direction: column; overflow: hidden; }
+    .row { display: flex; align-items: center; gap: 8px; }
+    .divider { height: 1px; background: var(--border); margin: clamp(6px, 1vh, 10px) 0; }
+    .txt-orange { color: var(--orange); }
+    .txt-sub { color: var(--sub); }
+    .txt-green { color: var(--green); }
+    .fw8 { font-weight: 800; }
+    .fw7 { font-weight: 700; }
+  </style>
+</head>
+<body>
+
+  <!-- Progress bar -->
+  <div id="progress-bar"></div>
+
+  <!-- Nav dots -->
+  <nav id="nav-dots" aria-label="슬라이드 네비게이션"></nav>
+
+  <!-- Slide counter -->
+  <div id="slide-counter">1 / 8</div>
+
+  <!-- ══════════════════════════════════
+       SLIDE 1 — 표지
+  ══════════════════════════════════ -->
+  <section class="slide" id="slide-1" data-slide="0">
+    <div class="cover-inner">
+      <div class="cover-tag reveal">Performance Management · 2026</div>
+      <h1 class="cover-title reveal">성과관리<br>월별 작업 체크리스트</h1>
+      <p class="cover-sub reveal">데이터 생성 전 → 11일 배치 → 생성 후<br>순서대로 따라하기</p>
+      <div class="stat-chips reveal">
+        <div class="stat-chip">
+          <div class="val">3</div>
+          <div class="lbl">매월 고정 작업</div>
+        </div>
+        <div class="stat-chip">
+          <div class="val">2</div>
+          <div class="lbl">조건부 작업</div>
+        </div>
+        <div class="stat-chip">
+          <div class="val">4</div>
+          <div class="lbl">비정기 작업</div>
+        </div>
+        <div class="stat-chip">
+          <div class="val">매월 11일</div>
+          <div class="lbl">배치 기준일</div>
+        </div>
+      </div>
+      <div class="reveal" style="margin-top: clamp(14px, 2.5vh, 24px); font-size: var(--small-size); color: rgba(250,249,245,.5);">
+        ← → 키 또는 스크롤로 이동 · 체크 항목 클릭 시 완료 표시
+      </div>
+    </div>
+  </section>
+
+  <!-- ══════════════════════════════════
+       SLIDE 2 — 월별 작업 타임라인 개요
+  ══════════════════════════════════ -->
+  <section class="slide" id="slide-2" data-slide="1">
+    <div class="slide-header reveal">
+      <div class="num">Overview</div>
+      <h2>월별 작업 타임라인 — 전체 흐름</h2>
+      <p>단계 클릭 시 해당 슬라이드로 이동</p>
+    </div>
+    <div class="ov-wrap reveal" style="padding-top: clamp(10px, 1.8vh, 18px);">
+
+      <!-- Phase 0: 생성 전 -->
+      <div class="ov-item" onclick="goToSlide(2)">
+        <div class="ov-left">
+          <div class="ov-dot" style="background:var(--muted); border:2px solid var(--border); color:var(--sub);">📋</div>
+          <div class="ov-line"></div>
+        </div>
+        <div class="ov-body">
+          <div class="ov-title">데이터 생성 전 <span class="badge b-orange" style="font-size:var(--small-size);">매월 필수</span></div>
+          <div class="ov-sub">에스원·KGM·토요타 보정매출 수기 기입 + 한전 PL 수익률 완성</div>
+        </div>
+      </div>
+
+      <!-- Event: 11일 배치 -->
+      <div class="ov-event" style="margin: clamp(2px,0.4vh,5px) 0;">
+        <div class="ov-event-dot">⚡</div>
+        <div class="ov-event-label" onclick="goToSlide(3)" style="cursor:pointer;">매월 11일 05:00~ — 성과관리 데이터 자동 생성</div>
+      </div>
+
+      <div class="ov-left" style="padding-left: clamp(14px, 1.8vw, 20px);">
+        <div class="ov-line" style="height: clamp(6px, 1vh, 10px);"></div>
+      </div>
+
+      <!-- Phase 2A: IF -->
+      <div class="ov-item" onclick="goToSlide(4)">
+        <div class="ov-left">
+          <div class="ov-dot" style="background:var(--card); border:2px solid var(--orange); color:var(--orange);">🔁</div>
+          <div class="ov-line"></div>
+        </div>
+        <div class="ov-body">
+          <div class="ov-title">수기테이블 미완성 시 <span class="ov-badge if">IF</span></div>
+          <div class="ov-sub">수기테이블 완성 → 데이터 재생성 요청 → ELSE 루틴으로</div>
+        </div>
+      </div>
+
+      <!-- Phase 2B: ELSE -->
+      <div class="ov-item" onclick="goToSlide(5)">
+        <div class="ov-left">
+          <div class="ov-dot" style="background:var(--card); border:2px solid var(--orange); color:var(--orange);">📊</div>
+          <div class="ov-line"></div>
+        </div>
+        <div class="ov-body">
+          <div class="ov-title">데이터 생성 완료 시 <span class="ov-badge else">ELSE</span></div>
+          <div class="ov-sub">KA 데이터 추출 → 네이버클라우드·한전 수익성 조정 → 특이사항 체크</div>
+        </div>
+      </div>
+
+      <!-- Phase 3: Eye-Checking -->
+      <div class="ov-item" onclick="goToSlide(6)">
+        <div class="ov-left">
+          <div class="ov-dot" style="background:var(--orange); color:#faf9f5;">✅</div>
+        </div>
+        <div class="ov-body">
+          <div class="ov-title">Eye-Checking <span class="badge b-green">최종 확인</span></div>
+          <div class="ov-sub">Claude 양식 생성 → KA 고객 특이사항 항목별 육안 확인</div>
+        </div>
+      </div>
+
+      <!-- Irregular -->
+      <div style="margin-top: clamp(8px,1.5vh,14px); padding: clamp(7px,1.2vh,11px) clamp(10px,2vw,14px); background:var(--muted); border-radius:8px; border:1.5px dashed var(--border); cursor:pointer;" onclick="goToSlide(7)">
+        <span style="font-size:var(--small-size); font-weight:700; color:var(--sub);">비정기 작업 (필요시만)</span>
+        <span style="font-size:var(--small-size); color:var(--sub); margin-left:8px;">수기테이블 정의 업데이트 · 고객 마스터 정비</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- ══════════════════════════════════
+       SLIDE 3 — 데이터 생성 전
+  ══════════════════════════════════ -->
+  <section class="slide" id="slide-3" data-slide="2">
+    <div class="slide-header reveal">
+      <div class="num">01 · 데이터 생성 전</div>
+      <h2>수기테이블 정비 — 11일 배치 이전 완료 필수</h2>
+      <p>에스원·KGM·토요타 보정매출 기입 + 한전 PL 수익률 완성</p>
+    </div>
+    <div class="inner-top reveal" style="gap: clamp(8px, 1.5vh, 14px);">
+
+      <div class="grid-2">
+        <!-- 왼쪽: 매출 보정 체크리스트 -->
+        <div class="pcard">
+          <div class="pcard-head" style="display:flex; justify-content:space-between; align-items:center;">
+            <span>📦 보정매출 수기 기입</span>
+            <span class="badge b-red">월평균 4~5억 원</span>
+          </div>
+          <div class="pcard-body gap-stack-sm">
+            <div class="check-item" data-key="s3-c1" onclick="toggleCheck(this)">
+              <div class="check-icon">✓</div>
+              <div class="check-text">
+                <b>에스원</b> 보정매출 → 매출조정 수기테이블 기입
+                <div class="check-sub">손익코드: M21 / M2M</div>
+              </div>
+            </div>
+            <div class="check-item" data-key="s3-c2" onclick="toggleCheck(this)">
+              <div class="check-icon">✓</div>
+              <div class="check-text">
+                <b>KGM</b> 보정매출 → 매출조정 수기테이블 기입
+                <div class="check-sub">손익코드: T35 / 커넥티드카</div>
+              </div>
+            </div>
+            <div class="check-item" data-key="s3-c3" onclick="toggleCheck(this)">
+              <div class="check-icon">✓</div>
+              <div class="check-text">
+                <b>토요타</b> 보정매출 → 매출조정 수기테이블 기입
+                <div class="check-sub">손익코드: T35 / 커넥티드카</div>
+              </div>
+            </div>
+            <div class="check-item" data-key="s3-c4" onclick="toggleCheck(this)">
+              <div class="check-icon">✓</div>
+              <div class="check-text">
+                <b>한전 PL 수익률</b> 수기테이블 완성
+                <div class="check-sub">기획팀 PL 자료 수령 후 즉시 입력</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 오른쪽: 확인 방법 A/B/C -->
+        <div style="display:flex; flex-direction:column; gap: clamp(5px,0.8vh,8px);">
+          <div style="font-size:var(--small-size); font-weight:700; color:var(--sub); text-transform:uppercase; letter-spacing:.06em; margin-bottom:2px;">금액 확인 방법</div>
+          <div class="opt-card">
+            <div class="opt-letter hi">A</div>
+            <div>
+              <div class="opt-title">기업 DW — 영업사원별 손익 보정매출</div>
+              <div class="opt-desc">가장 직접적. DW 접근 권한 필요</div>
+            </div>
+          </div>
+          <div class="opt-card">
+            <div class="opt-letter hi">B</div>
+            <div>
+              <div class="opt-title">파트너플러스 — 사업자별 정산금액</div>
+              <div class="opt-desc">DW 대비 쉬움. 계정 체계 매핑 주의</div>
+            </div>
+          </div>
+          <div class="opt-card">
+            <div class="opt-letter lo">C</div>
+            <div>
+              <div class="opt-title">담당 영업사원에게 직접 확인</div>
+              <div class="opt-desc">A/B 불가 시 최후 수단</div>
+            </div>
+          </div>
+          <div class="warn-box" style="margin-top:2px;">
+            <div style="font-size:var(--small-size); font-weight:700; color:var(--orange);">⚡ 타이밍 주의</div>
+            <div style="font-size:var(--small-size); color:var(--body-text); margin-top:2px;">DW 매출·PL 자료는 11일 전후 유동적 — <b>수령 즉시 기입</b></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ══════════════════════════════════
+       SLIDE 4 — 11일 배치 (자동)
+  ══════════════════════════════════ -->
+  <section class="slide" id="slide-4" data-slide="3">
+    <div class="slide-header reveal">
+      <div class="num">자동 실행 · 담당자 액션 없음</div>
+      <h2>매월 11일 — 데이터 배치 자동화</h2>
+      <p>스케줄러가 DW 원장 생성을 감지하는 시점에 후속 배치 자동 트리거</p>
+    </div>
+    <div class="inner reveal" style="gap: clamp(10px, 2vh, 18px);">
+
+      <div class="tl-wrap">
+        <div class="tl-item">
+          <div class="tl-left">
+            <div class="tl-icon" style="background:var(--muted); border:2px solid var(--border); color:var(--sub); font-size:clamp(12px,1.4vw,15px);">01</div>
+            <div class="tl-line"></div>
+          </div>
+          <div class="tl-body">
+            <div class="tl-title">매월 <span class="txt-orange">6 영업일</span></div>
+            <div class="tl-desc">기업 DW 확정매출 및 부문별 PL 계정 산출 마감. 달력상 <b>9~10일경</b> 유동</div>
+          </div>
+        </div>
+        <div class="tl-item">
+          <div class="tl-left">
+            <div class="tl-icon" style="background:var(--card); border:2px solid var(--orange); color:var(--orange); font-size:clamp(12px,1.4vw,15px);">02</div>
+            <div class="tl-line"></div>
+          </div>
+          <div class="tl-body">
+            <div class="tl-title">매월 11일 <span class="txt-orange">04:00</span></div>
+            <div class="tl-desc">DW → 분석 데이터레이크(DL) 이관 및 적재 자동 완료. <b>공휴일 무관</b></div>
+          </div>
+        </div>
+        <div class="tl-item">
+          <div class="tl-left">
+            <div class="tl-icon" style="background:var(--orange); color:#faf9f5; font-size:clamp(12px,1.4vw,15px);">03</div>
+          </div>
+          <div class="tl-body">
+            <div class="tl-title">매월 11일 <span class="txt-orange">05:00~</span></div>
+            <div class="tl-desc">DL 원장 조인 → <b>성과관리 데이터 마트</b> 구축. 스케줄러 감지 후 연쇄 기동</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="auto-badge reveal">
+        ✓ 연휴·마감 지연 시에도 <b>인위적 수동 조정 불필요</b> — 스케줄러가 DW 원장 생성 감지 즉시 자동 트리거
+      </div>
+
+      <div style="background:var(--card); border:1.5px solid var(--border); border-radius:10px; padding:clamp(10px,1.5vh,14px) clamp(12px,2vw,18px);" class="reveal">
+        <div style="font-size:var(--small-size); font-weight:700; color:var(--orange); margin-bottom:4px;">다음 단계 확인</div>
+        <div style="font-size:var(--body-size); color:var(--body-text);">배치 완료 후 → 수기테이블이 <b>완성 상태</b>인지 확인</div>
+        <div style="display:flex; gap:8px; margin-top:8px; flex-wrap:wrap;">
+          <button class="next-btn" style="font-size:var(--small-size);" onclick="goToSlide(4)">미완성 → IF 루틴 (슬라이드 5)</button>
+          <button class="next-btn" style="font-size:var(--small-size); background:var(--sub);" onclick="goToSlide(5)">완성 → ELSE 루틴 (슬라이드 6)</button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ══════════════════════════════════
+       SLIDE 5 — IF: 수기테이블 미완성
+  ══════════════════════════════════ -->
+  <section class="slide" id="slide-5" data-slide="4">
+    <div class="slide-header reveal" style="background:linear-gradient(135deg,#3d3d3a,#2a2a27);">
+      <div class="num" style="color:var(--orange);">조건부 실행</div>
+      <h2>IF — 수기테이블 미완성 시 대응</h2>
+      <p>배치 실행 후 누락 항목이 있을 경우</p>
+    </div>
+    <div class="inner reveal" style="gap: clamp(12px, 2vh, 22px);">
+
+      <div class="if-box">
+        <div class="if-tag">IF: 수기테이블 미완성</div>
+        <h3>데이터 재생성 요청</h3>
+        <p>배치가 완료된 상태에서 수기테이블 누락 항목을 추가로 기입한 뒤,<br>
+           담당자에게 <b style="color:#faf9f5;">성과관리 데이터 재생성</b>을 요청합니다.</p>
+        <button class="next-btn" onclick="goToSlide(5)">재생성 완료 → ELSE 루틴으로 →</button>
+      </div>
+
+      <div class="gap-stack">
+        <div style="font-size:var(--small-size); font-weight:700; color:var(--sub); text-transform:uppercase; letter-spacing:.06em;">재생성 전 체크</div>
+        <div class="check-item" data-key="s5-c1" onclick="toggleCheck(this)">
+          <div class="check-icon">✓</div>
+          <div class="check-text"><b>에스원·KGM·토요타</b> 보정매출 전부 기입 완료 여부 확인</div>
+        </div>
+        <div class="check-item" data-key="s5-c2" onclick="toggleCheck(this)">
+          <div class="check-icon">✓</div>
+          <div class="check-text"><b>한전 PL 수익률</b> 수기테이블 최신월 입력 완료 여부 확인</div>
+        </div>
+        <div class="check-item" data-key="s5-c3" onclick="toggleCheck(this)">
+          <div class="check-icon">✓</div>
+          <div class="check-text">재생성 완료 후 <b>최신월 마트 적재 시간</b> 확인</div>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- ══════════════════════════════════
+       SLIDE 6 — ELSE: 수익성 조정
+  ══════════════════════════════════ -->
+  <section class="slide" id="slide-6" data-slide="5">
+    <div class="slide-header reveal">
+      <div class="num">02 · 데이터 생성 완료 후</div>
+      <h2>수익성 조정 — 네이버클라우드 · 한전</h2>
+      <p>배치 직후 예외 고객사 조정처리 반영</p>
+    </div>
+    <div class="inner-top reveal" style="gap: clamp(8px, 1.5vh, 14px);">
+      <div class="grid-2">
+
+        <!-- 네이버클라우드 -->
+        <div class="pcard">
+          <div class="pcard-head" style="display:flex; align-items:center; gap:8px;">
+            <span class="badge b-orange">예외 #1</span>
+            <span>네이버클라우드 (코람코 IDC)</span>
+          </div>
+          <div class="pcard-body" style="display:flex; flex-direction:column; gap: clamp(4px,0.7vh,7px);">
+            <div style="font-size:var(--small-size); color:var(--sub); margin-bottom:2px;">Billing 역산 예외처리 — 3단계</div>
+            <div class="check-item" data-key="s6-n1" onclick="toggleCheck(this)">
+              <div class="check-icon">✓</div>
+              <div class="check-text"><b>UCube</b>에서 네이버클라우드 청구계정 <b>청구금액 확인</b></div>
+            </div>
+            <div class="check-item" data-key="s6-n2" onclick="toggleCheck(this)">
+              <div class="check-icon">✓</div>
+              <div class="check-text">11일 이후 최신월 성과관리 데이터 <b>생성 완료 확인</b></div>
+            </div>
+            <div class="check-item" data-key="s6-n3" onclick="toggleCheck(this)">
+              <div class="check-icon">✓</div>
+              <div class="check-text">심의내역에서 <b>네이버 IDC 코람코 관련 심의</b> 찾아 반영매출을 <b>1월~최신월 누적값으로 조정처리 반영</b></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 한전 -->
+        <div class="pcard">
+          <div class="pcard-head" style="display:flex; align-items:center; gap:8px;">
+            <span class="badge b-amber">예외 #2</span>
+            <span>한전 KEPCO 전력통신</span>
+          </div>
+          <div class="pcard-body" style="display:flex; flex-direction:column; gap: clamp(4px,0.7vh,7px);">
+            <div style="font-size:var(--small-size); color:var(--sub); margin-bottom:2px;">PL 이익률 강제 적용 — 4단계</div>
+            <div class="check-item" data-key="s6-k1" onclick="toggleCheck(this)">
+              <div class="check-icon">✓</div>
+              <div class="check-text">6영업일 즈음 기획팀에서 전달하는 <b>PL 자료 수령</b></div>
+            </div>
+            <div class="check-item" data-key="s6-k2" onclick="toggleCheck(this)">
+              <div class="check-icon">✓</div>
+              <div class="check-text">PL 자료로 <b>PL 수익률 수기테이블 완성</b> → 최신월 <b>P10 전력통신 수익률 입력</b></div>
+            </div>
+            <div class="check-item" data-key="s6-k3" onclick="toggleCheck(this)">
+              <div class="check-icon">✓</div>
+              <div class="check-text">11일 이후 최신월 성과관리 데이터 <b>생성 완료 확인</b></div>
+            </div>
+            <div class="check-item" data-key="s6-k4" onclick="toggleCheck(this)">
+              <div class="check-icon">✓</div>
+              <div class="check-text">심의내역에서 <b>한전 P10 전력통신 심의</b> 찾아 <b>수익률을 PL 수익률로 조정처리 반영</b></div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- ══════════════════════════════════
+       SLIDE 7 — Eye-Checking
+  ══════════════════════════════════ -->
+  <section class="slide" id="slide-7" data-slide="6">
+    <div class="slide-header reveal">
+      <div class="num">03 · 최종 확인</div>
+      <h2>Eye-Checking — KA 고객 특이사항</h2>
+      <p>Claude로 체크 양식 생성 → 항목별 육안 확인</p>
+    </div>
+    <div class="inner-top reveal" style="gap: clamp(8px, 1.5vh, 14px);">
+
+      <!-- 절차 -->
+      <div style="display:flex; gap: clamp(6px,1.5vw,12px); align-items:stretch;">
+        <div style="flex:1; background:var(--card); border:1.5px solid var(--border); border-radius:10px; padding:clamp(8px,1.3vh,13px) clamp(10px,2vw,15px); display:flex; gap:8px; align-items:flex-start;">
+          <div style="width:clamp(24px,3vw,30px); height:clamp(24px,3vw,30px); background:var(--orange); border-radius:8px; display:flex;align-items:center;justify-content:center; color:#fff; font-weight:800; font-size:var(--small-size); flex-shrink:0;">1</div>
+          <div>
+            <div style="font-size:var(--body-size); font-weight:700; color:var(--text);">Claude에 체크 양식 요청</div>
+            <div style="font-size:var(--small-size); color:var(--sub); margin-top:2px;">KA 고객 목록 + 해당 월 성과 데이터 첨부</div>
+          </div>
+        </div>
+        <div style="font-size:clamp(14px,2vw,20px); display:flex; align-items:center; color:var(--border);">→</div>
+        <div style="flex:1; background:var(--card); border:1.5px solid var(--border); border-radius:10px; padding:clamp(8px,1.3vh,13px) clamp(10px,2vw,15px); display:flex; gap:8px; align-items:flex-start;">
+          <div style="width:clamp(24px,3vw,30px); height:clamp(24px,3vw,30px); background:var(--orange); border-radius:8px; display:flex;align-items:center;justify-content:center; color:#fff; font-weight:800; font-size:var(--small-size); flex-shrink:0;">2</div>
+          <div>
+            <div style="font-size:var(--body-size); font-weight:700; color:var(--text);">항목별 육안 확인</div>
+            <div style="font-size:var(--small-size); color:var(--sub); margin-top:2px;">이상 항목 발견 시 원인 파악 및 수정</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 체크 항목 -->
+      <div class="grid-2">
+        <div class="gap-stack-sm">
+          <div style="font-size:var(--small-size); font-weight:700; color:var(--sub); text-transform:uppercase; letter-spacing:.06em; margin-bottom:2px;">수치 이상 체크</div>
+          <div class="check-item" data-key="s7-c1" onclick="toggleCheck(this)">
+            <div class="check-icon">✓</div>
+            <div class="check-text">매출 급변동 — 전월 대비 ±30% 초과 여부</div>
+          </div>
+          <div class="check-item" data-key="s7-c2" onclick="toggleCheck(this)">
+            <div class="check-icon">✓</div>
+            <div class="check-text">이익률 이상 — 업계 평균 대비 극단값 존재 여부</div>
+          </div>
+          <div class="check-item" data-key="s7-c3" onclick="toggleCheck(this)">
+            <div class="check-icon">✓</div>
+            <div class="check-text">GRR/NRR 이상 — 100% 초과 또는 극단적 하락 여부</div>
+          </div>
+          <div class="check-item" data-key="s7-c4" onclick="toggleCheck(this)">
+            <div class="check-icon">✓</div>
+            <div class="check-text">수주잔고 갑작스러운 변동 여부</div>
+          </div>
+        </div>
+        <div class="gap-stack-sm">
+          <div style="font-size:var(--small-size); font-weight:700; color:var(--sub); text-transform:uppercase; letter-spacing:.06em; margin-bottom:2px;">데이터 정합성 체크</div>
+          <div class="check-item" data-key="s7-c5" onclick="toggleCheck(this)">
+            <div class="check-icon">✓</div>
+            <div class="check-text">심의내역 누락 — VRB 심의 등록 여부 확인</div>
+          </div>
+          <div class="check-item" data-key="s7-c6" onclick="toggleCheck(this)">
+            <div class="check-icon">✓</div>
+            <div class="check-text">네이버클라우드·한전 수익성 조정 반영 완료 확인</div>
+          </div>
+          <div class="check-item" data-key="s7-c7" onclick="toggleCheck(this)">
+            <div class="check-icon">✓</div>
+            <div class="check-text">에스원·KGM·토요타 보정매출 반영 확인</div>
+          </div>
+          <div class="check-item" data-key="s7-c8" onclick="toggleCheck(this)">
+            <div class="check-icon">✓</div>
+            <div class="check-text">신규 고객 마스터 매핑 오류 없음 확인</div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- ══════════════════════════════════
+       SLIDE 8 — 비정기 작업
+  ══════════════════════════════════ -->
+  <section class="slide" id="slide-8" data-slide="7">
+    <div class="slide-header reveal" style="background:linear-gradient(135deg,#6c6a64,#4a4845);">
+      <div class="num" style="color:rgba(250,249,245,.6);">비정기 · 필요시만 수행</div>
+      <h2>수기테이블 정의 업데이트 · 고객 마스터 정비</h2>
+      <p>변경 사유 발생 시 즉시 처리 — 정기 주기 없음</p>
+    </div>
+    <div class="inner-top reveal" style="gap: clamp(10px, 1.8vh, 16px);">
+
+      <div class="grid-2">
+
+        <!-- 수기테이블 업데이트 -->
+        <div>
+          <div style="font-size:var(--small-size); font-weight:700; color:var(--sub); text-transform:uppercase; letter-spacing:.06em; margin-bottom: clamp(5px,0.8vh,8px);">수기테이블 정의 업데이트</div>
+          <div class="gap-stack-sm">
+            <div class="irreg-item">
+              <div class="irreg-dot">1</div>
+              <div>
+                <div style="font-size:var(--body-size); font-weight:700; color:var(--text);">KA 고객 정의</div>
+                <div style="font-size:var(--small-size); color:var(--sub);">Key Account 식별 기준 변경 시</div>
+              </div>
+              <span class="irreg-tag" style="margin-left:auto;">필요시</span>
+            </div>
+            <div class="irreg-item">
+              <div class="irreg-dot">2</div>
+              <div>
+                <div style="font-size:var(--body-size); font-weight:700; color:var(--text);">GA 고객 정의</div>
+                <div style="font-size:var(--small-size); color:var(--sub);">General Account 기준 변경 시</div>
+              </div>
+              <span class="irreg-tag" style="margin-left:auto;">필요시</span>
+            </div>
+            <div class="irreg-item">
+              <div class="irreg-dot">3</div>
+              <div>
+                <div style="font-size:var(--body-size); font-weight:700; color:var(--text);">고객 그룹핑 정의</div>
+                <div style="font-size:var(--small-size); color:var(--sub);">복수 고객 단일 그룹 매핑 변경 시</div>
+              </div>
+              <span class="irreg-tag" style="margin-left:auto;">필요시</span>
+            </div>
+            <div class="irreg-item">
+              <div class="irreg-dot">4</div>
+              <div>
+                <div style="font-size:var(--body-size); font-weight:700; color:var(--text);">고객군 정의</div>
+                <div style="font-size:var(--small-size); color:var(--sub);">산업군 세그먼트 분류 변경 시</div>
+              </div>
+              <span class="irreg-tag" style="margin-left:auto;">필요시</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- 고객 마스터 정비 -->
+        <div>
+          <div style="font-size:var(--small-size); font-weight:700; color:var(--sub); text-transform:uppercase; letter-spacing:.06em; margin-bottom: clamp(5px,0.8vh,8px);">고객 마스터 정비</div>
+          <div class="gap-stack-sm">
+            <div class="irreg-item">
+              <div class="irreg-dot">🔗</div>
+              <div>
+                <div style="font-size:var(--body-size); font-weight:700; color:var(--text);">사업자번호 매핑 오류 수정</div>
+                <div style="font-size:var(--small-size); color:var(--sub);">중복 계정 정제 / 유일 고객 ID 재발급</div>
+              </div>
+              <span class="irreg-tag" style="margin-left:auto;">오류 발견 시</span>
+            </div>
+            <div class="irreg-item">
+              <div class="irreg-dot">➕</div>
+              <div>
+                <div style="font-size:var(--body-size); font-weight:700; color:var(--text);">신규 고객 등록</div>
+                <div style="font-size:var(--small-size); color:var(--sub);">사업자번호 확인 후 마스터 추가</div>
+              </div>
+              <span class="irreg-tag" style="margin-left:auto;">신규 발생 시</span>
+            </div>
+            <div class="irreg-item">
+              <div class="irreg-dot">📋</div>
+              <div>
+                <div style="font-size:var(--body-size); font-weight:700; color:var(--text);">수기테이블 항목 수 변동</div>
+                <div style="font-size:var(--small-size); color:var(--sub);">현재 18개 수기테이블 구조 변경 시</div>
+              </div>
+              <span class="irreg-tag" style="margin-left:auto;">구조 변경 시</span>
+            </div>
+          </div>
+          <div class="warn-box" style="margin-top: clamp(6px,1vh,10px);">
+            <div style="font-size:var(--small-size); font-weight:700; color:var(--orange); margin-bottom:2px;">📌 수기테이블 현황</div>
+            <div style="font-size:var(--small-size); color:var(--body-text);">
+              전체 18개 중 <b>주요 관리 7개</b>만 매월 점검<br>
+              나머지 11개는 필요시 담당자 확인
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- 완료 메시지 -->
+      <div style="background:linear-gradient(135deg,var(--orange),var(--orange-dk)); border-radius:10px; padding:clamp(10px,1.5vh,14px) clamp(14px,2.5vw,20px); color:#faf9f5; text-align:center;">
+        <div style="font-size:var(--h3-size); font-weight:800; margin-bottom:3px;">이번 달 작업 완료 🎉</div>
+        <div style="font-size:var(--small-size); color:rgba(250,249,245,.8);">다음 달 11일 배치 전까지 수기테이블 수령 즉시 대응</div>
+      </div>
+
+    </div>
+  </section>
+
+  <script>
+    /* === SLIDE CONTROLLER === */
+    const TOTAL = 8;
+    let current = 0;
+    let isScrolling = false;
+
+    const slides = document.querySelectorAll('.slide');
+    const progressBar = document.getElementById('progress-bar');
+    const slideCounter = document.getElementById('slide-counter');
+    const navDotsContainer = document.getElementById('nav-dots');
+
+    /* Build nav dots */
+    navDotsContainer.innerHTML = '';
+    for (let i = 0; i < TOTAL; i++) {
+      const btn = document.createElement('button');
+      btn.className = 'nav-dot' + (i === 0 ? ' active' : '');
+      btn.setAttribute('aria-label', `슬라이드 ${i + 1}`);
+      btn.onclick = () => goToSlide(i);
+      navDotsContainer.appendChild(btn);
+    }
+
+    function updateUI() {
+      const pct = TOTAL > 1 ? (current / (TOTAL - 1)) * 100 : 100;
+      progressBar.style.width = pct + '%';
+      slideCounter.textContent = `${current + 1} / ${TOTAL}`;
+      document.querySelectorAll('.nav-dot').forEach((d, i) => {
+        d.classList.toggle('active', i === current);
+      });
+    }
+
+    function goToSlide(index) {
+      if (index < 0 || index >= TOTAL) return;
+      current = index;
+      slides[current].scrollIntoView({ behavior: 'smooth' });
+      updateUI();
+    }
+
+    /* Intersection Observer — visible class + current tracking */
+    const visObs = new IntersectionObserver((entries) => {
+      entries.forEach(e => {
+        if (e.isIntersecting) {
+          e.target.classList.add('visible');
+          const idx = parseInt(e.target.dataset.slide);
+          if (!isNaN(idx)) { current = idx; updateUI(); }
+        }
+      });
+    }, { threshold: 0.5 });
+
+    slides.forEach(s => visObs.observe(s));
+
+    /* Keyboard navigation */
+    document.addEventListener('keydown', e => {
+      if (e.key === 'ArrowDown' || e.key === 'ArrowRight' || e.key === ' ' || e.key === 'PageDown') {
+        e.preventDefault(); goToSlide(current + 1);
+      } else if (e.key === 'ArrowUp' || e.key === 'ArrowLeft' || e.key === 'PageUp') {
+        e.preventDefault(); goToSlide(current - 1);
+      } else if (e.key === 'Home') {
+        e.preventDefault(); goToSlide(0);
+      } else if (e.key === 'End') {
+        e.preventDefault(); goToSlide(TOTAL - 1);
+      }
+    });
+
+    /* Mouse wheel navigation (debounced) */
+    let wheelTimer = null;
+    document.addEventListener('wheel', e => {
+      e.preventDefault();
+      if (wheelTimer) return;
+      wheelTimer = setTimeout(() => { wheelTimer = null; }, 700);
+      goToSlide(e.deltaY > 0 ? current + 1 : current - 1);
+    }, { passive: false });
+
+    /* Touch/swipe */
+    let touchStartY = 0;
+    document.addEventListener('touchstart', e => { touchStartY = e.touches[0].clientY; }, { passive: true });
+    document.addEventListener('touchend', e => {
+      const diff = touchStartY - e.changedTouches[0].clientY;
+      if (Math.abs(diff) > 40) goToSlide(diff > 0 ? current + 1 : current - 1);
+    }, { passive: true });
+
+    /* Init */
+    updateUI();
+
+    /* === CHECKLIST LOGIC (localStorage) === */
+    function toggleCheck(el) {
+      const key = el.dataset.key;
+      const isDone = el.classList.toggle('done');
+      const icon = el.querySelector('.check-icon');
+      icon.textContent = isDone ? '✓' : '✓';
+      try { localStorage.setItem('ck_' + key, isDone ? '1' : '0'); } catch(e) {}
+    }
+
+    /* Restore checked state */
+    document.querySelectorAll('.check-item[data-key]').forEach(el => {
+      const key = el.dataset.key;
+      try {
+        if (localStorage.getItem('ck_' + key) === '1') {
+          el.classList.add('done');
+        }
+      } catch(e) {}
+    });
+
+    /* Reset all button (콘솔에서 resetChecks() 호출 가능) */
+    window.resetChecks = function() {
+      document.querySelectorAll('.check-item.done').forEach(el => {
+        el.classList.remove('done');
+        try { localStorage.removeItem('ck_' + el.dataset.key); } catch(e) {}
+      });
+    };
+  </script>
+
+</body>
+</html>

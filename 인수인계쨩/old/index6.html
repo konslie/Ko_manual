@@ -1,0 +1,2382 @@
+<!DOCTYPE html>
+<html lang="ko">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>힘내십쇼..</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Pretendard:wght@300;400;500;600;700;800&display=swap"
+        rel="stylesheet">
+    <style>
+        *,
+        *::before,
+        *::after {
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Pretendard', sans-serif;
+            background: #faf9f5;
+            color: #141413;
+            scroll-behavior: smooth;
+            font-size: 16px;
+            line-height: 1.6;
+        }
+
+        /* ── Cards ── */
+        .card {
+            background: #efe9de;
+            border-radius: 12px;
+            border: 1.5px solid #c8bfb4;
+            overflow: hidden;
+        }
+
+        .card-header {
+            padding: 20px 24px 16px;
+            border-bottom: 1.5px solid #c8bfb4;
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+        }
+
+        .card-body {
+            padding: 20px 24px;
+        }
+
+        /* ── Section pill ── */
+        .sec-pill {
+            display: inline-flex;
+            align-items: center;
+            gap: 12px;
+            padding: 6px 20px 6px 6px;
+            background: #efe9de;
+            border-radius: 999px;
+            font-size: 20px;
+            font-weight: 800;
+            color: #141413;
+            font-family: 'Pretendard', sans-serif;
+            margin-bottom: 20px;
+            margin-top: 8px;
+        }
+
+        .sec-pill span {
+            width: 32px;
+            height: 32px;
+            background: #cc785c;
+            color: #faf9f5;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+            font-family: 'Pretendard', sans-serif;
+        }
+
+        .sec-pill.warn {
+            background: #efe9de;
+            color: #141413;
+        }
+
+        .sec-pill.warn span {
+            background: #cc785c;
+            color: #faf9f5;
+        }
+
+        /* ── Tables ── */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        thead th {
+            font-size: 11px;
+            font-weight: 600;
+            color: #6c6a64;
+            letter-spacing: .04em;
+            padding: 8px 10px;
+            background: #f5f0e8;
+            text-align: left;
+            white-space: nowrap;
+        }
+
+        thead th.r {
+            text-align: right;
+        }
+
+        tbody td {
+            font-size: 12px;
+            color: #3d3d3a;
+            padding: 9px 10px;
+            border-bottom: 1px solid #e6dfd8;
+        }
+
+        tbody td.num {
+            text-align: right;
+            font-variant-numeric: tabular-nums;
+        }
+
+        tbody td.code {
+            font-family: monospace;
+            font-weight: 700;
+            color: #141413;
+        }
+
+        tbody tr:last-child td {
+            border-bottom: none;
+        }
+
+        /* ── Badge ── */
+        .badge {
+            display: inline-flex;
+            align-items: center;
+            padding: 2px 7px;
+            border-radius: 4px;
+            font-size: 11px;
+            font-weight: 700;
+        }
+
+        .b-blue {
+            background: #efe9de;
+            color: #cc785c;
+        }
+
+        .b-green {
+            background: #d4ede8;
+            color: #2e7a6a;
+        }
+
+        .b-amber {
+            background: #f5f0e8;
+            color: #6c6a64;
+        }
+
+        .b-purple {
+            background: #efe9de;
+            color: #cc785c;
+        }
+
+        /* ── Formula ── */
+        .formula-block {
+            display: flex;
+            align-items: stretch;
+            gap: 0;
+            border: 1.5px solid #c8bfb4;
+            border-radius: 14px;
+            overflow: hidden;
+        }
+
+        .formula-result {
+            background: #cc785c;
+            color: #faf9f5;
+            padding: 16px 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+            min-width: 110px;
+            text-align: center;
+        }
+
+        .formula-op {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 0 14px;
+            font-size: 20px;
+            font-weight: 700;
+            color: #6c6a64;
+            background: #f5f0e8;
+            flex-shrink: 0;
+        }
+
+        .formula-term {
+            flex: 1;
+            padding: 14px 18px;
+        }
+
+        /* ── VRB row calc-hover highlight ── */
+        /* 호버 활성 시: 비대상 행은 회색, 대상 행은 주황 */
+        #vrbTableBody.hover-active tr td {
+            background: #f5f0e8 !important;
+            color: #a09d96 !important;
+        }
+
+        #vrbTableBody.hover-active tr.pl-highlight td {
+            background: #faf3ec !important;
+            color: #141413 !important;
+        }
+
+        .calc-box {
+            cursor: default;
+        }
+
+        .calc-box:hover {
+            background: #a9583e !important;
+        }
+
+        /* ── VRB row type colors ── */
+        tr.row-amber td {
+            background: #f5f0e8 !important;
+        }
+
+        tr.row-blue td {
+            background: #f5f0e8 !important;
+        }
+
+        tr.row-green td {
+            background: #eaf5f3 !important;
+        }
+
+        tr.row-purple td {
+            background: #f5f0e8 !important;
+        }
+
+        /* ── Highlight row ── */
+        tr.row-total td {
+            background: #cc785c !important;
+            color: #faf9f5;
+            font-weight: 700;
+            border-bottom: none !important;
+        }
+
+        tr.row-total td.accent {
+            color: #faf9f5;
+        }
+
+        /* ── Warning box ── */
+        .warn-box {
+            background: #faf9f5;
+            border: 1.5px solid #cc785c;
+            border-radius: 12px;
+            padding: 16px 18px;
+        }
+
+        .warn-box .title {
+            color: #cc785c;
+            font-weight: 700;
+            font-size: 13px;
+            margin-bottom: 8px;
+        }
+
+        .warn-box p {
+            color: #3d3d3a;
+            font-size: 12px;
+            line-height: 1.65;
+        }
+
+        /* ── Exception card ── */
+        .exc-card {
+            border-radius: 14px;
+            overflow: hidden;
+            border: 1.5px solid #c8bfb4;
+        }
+
+        .exc-head {
+            background: #cc785c;
+            color: #faf9f5;
+            padding: 10px 16px;
+            font-weight: 700;
+            font-size: 13px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .exc-body {
+            padding: 14px 16px;
+            background: #efe9de;
+        }
+
+        .exc-row {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 8px;
+            font-size: 12px;
+        }
+
+        .exc-row:last-child {
+            margin-bottom: 0;
+        }
+
+        .exc-label {
+            flex-shrink: 0;
+            width: 48px;
+            font-weight: 700;
+            padding: 2px 0;
+        }
+
+        .exc-label.prob {
+            color: #6c6a64;
+        }
+
+        .exc-label.fix {
+            color: #2e7a6a;
+        }
+
+        .exc-text {
+            color: #3d3d3a;
+            line-height: 1.6;
+        }
+
+        /* ── Step pill ── */
+        .step-pill {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            background: #3d3d3a;
+            color: #faf9f5;
+            border-radius: 999px;
+            padding: 5px 14px 5px 6px;
+            font-size: 12px;
+            font-weight: 700;
+            margin-bottom: 14px;
+        }
+
+        .step-pill span {
+            background: #cc785c;
+            color: #faf9f5;
+            width: 22px;
+            height: 22px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 11px;
+        }
+
+        /* ── Legend pill ── */
+        .legend-pill {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            padding: 3px 10px;
+            border-radius: 999px;
+            font-size: 11px;
+            font-weight: 600;
+        }
+
+        /* ── Scrollable table wrapper ── */
+        .tbl-wrap {
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+        }
+
+        /* ── Timeline ── */
+        .tl-step {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+            position: relative;
+        }
+
+        .tl-step:not(:last-child)::after {
+            content: '→';
+            position: absolute;
+            right: -16px;
+            top: 20px;
+            font-size: 16px;
+            color: #6c6a64;
+        }
+
+        .tl-icon {
+            width: 48px;
+            height: 48px;
+            border-radius: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+            font-weight: 800;
+            margin-bottom: 12px;
+        }
+
+        /* ── Sticky nav ── */
+        #topnav {
+            position: fixed;
+            top: 0;
+            width: 100%;
+            z-index: 50;
+        }
+
+        /* ── Responsive grid classes ── */
+        .grid-2col {
+            display: grid;
+            gap: 14px;
+            grid-template-columns: 1fr 1.6fr;
+        }
+
+        .grid-2col-e {
+            display: grid;
+            gap: 14px;
+            grid-template-columns: 1fr 1fr;
+        }
+
+        .grid-2col-s {
+            display: grid;
+            gap: 14px;
+            grid-template-columns: 1fr 1.4fr;
+        }
+
+        .grid-3col {
+            display: grid;
+            gap: 10px;
+            grid-template-columns: 1fr 1fr 1fr;
+        }
+
+        .grid-2col-r {
+            display: grid;
+            gap: 14px;
+            grid-template-columns: 2fr 1fr;
+        }
+
+        .grid-donut {
+            display: grid;
+            gap: 24px;
+            grid-template-columns: 1fr 1fr;
+            align-items: center;
+        }
+
+        @media (max-width: 768px) {
+
+            /* 모든 2단·3단 그리드 → 1단 */
+            .grid-2col,
+            .grid-2col-e,
+            .grid-2col-s,
+            .grid-3col,
+            .grid-2col-r,
+            .grid-donut {
+                grid-template-columns: 1fr !important;
+            }
+
+            /* 카드 padding 축소 */
+            .card-header {
+                padding: 14px 16px 12px;
+            }
+
+            .card-body {
+                padding: 14px 16px;
+            }
+
+            /* Hero padding */
+            #hero {
+                padding: 28px 20px !important;
+            }
+
+            #hero h1 {
+                font-size: 22px !important;
+            }
+
+            /* 파이프라인: 세로 스택 */
+            #pipeline {
+                flex-direction: column !important;
+                align-items: stretch !important;
+            }
+
+            .pipe-node {
+                min-width: unset !important;
+            }
+
+            .pipe-connector {
+                width: 2px !important;
+                height: 24px !important;
+                min-width: unset !important;
+                flex: none !important;
+                margin: 0 auto;
+            }
+
+            .pipe-arrow {
+                display: none;
+            }
+
+            /* Step2 calc 3col → 1col */
+            #calcSection>div[style*="grid-template-columns"] {
+                grid-template-columns: 1fr !important;
+            }
+
+            /* 도넛 섹션: 차트를 아래로 */
+            .grid-donut .donut-canvas {
+                order: -1;
+                height: 180px !important;
+            }
+
+            /* 배치 타임라인 */
+            #batchTimeline {
+                padding-left: 4px !important;
+            }
+
+            /* nav 텍스트 숨기고 간소화 */
+            #topnav .nav-labels {
+                display: none;
+            }
+
+            /* hero stats wrap */
+            .hero-stats {
+                flex-wrap: wrap;
+            }
+
+            .hero-stats>div {
+                min-width: 72px !important;
+                flex: 1 1 72px;
+            }
+
+            /* table 폰트 */
+            thead th {
+                font-size: 10px !important;
+                padding: 6px 7px !important;
+            }
+
+            tbody td {
+                font-size: 11px !important;
+                padding: 7px 7px !important;
+            }
+
+            /* formula block → 세로 */
+            .formula-block {
+                flex-direction: column !important;
+            }
+
+            .formula-result {
+                min-width: unset !important;
+                padding: 12px !important;
+            }
+
+            .formula-op {
+                padding: 6px 0 !important;
+                border: none !important;
+            }
+
+            .formula-term {
+                border-right: none !important;
+                border-top: 1.5px solid #e6dfd8;
+            }
+
+            /* sec-pill, step-pill margin */
+            .sec-pill,
+            .step-pill {
+                margin-bottom: 10px;
+            }
+
+            /* warn-box */
+            .warn-box {
+                padding: 12px 14px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .max-w-5xl {
+                padding-left: 12px !important;
+                padding-right: 12px !important;
+            }
+
+            #hero h1 {
+                font-size: 18px !important;
+            }
+
+            .hero-stats>div {
+                min-width: 60px !important;
+            }
+
+            .grid-3col {
+                grid-template-columns: 1fr !important;
+            }
+        }
+
+        /* ════════════════════════════════════════
+           ANIMATION STYLES
+        ════════════════════════════════════════ */
+
+        /* Fade-in on scroll */
+        .reveal {
+            opacity: 0;
+            transform: translateY(18px);
+            transition: opacity .55s ease, transform .55s ease;
+        }
+
+        .reveal.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .reveal-delay-1 {
+            transition-delay: .1s;
+        }
+
+        .reveal-delay-2 {
+            transition-delay: .2s;
+        }
+
+        .reveal-delay-3 {
+            transition-delay: .3s;
+        }
+
+        .reveal-delay-4 {
+            transition-delay: .4s;
+        }
+
+        .reveal-delay-5 {
+            transition-delay: .5s;
+        }
+
+        /* ── Pipeline diagram ── */
+        .pipe-node {
+            background: #efe9de;
+            border: 2px solid #c8bfb4;
+            border-radius: 14px;
+            padding: 14px 16px;
+            text-align: center;
+            position: relative;
+            transition: border-color .3s, box-shadow .3s;
+        }
+
+        .pipe-node.active {
+            border-color: #cc785c;
+            box-shadow: 0 0 0 4px rgba(204, 120, 92, .12);
+        }
+
+        .pipe-node.done {
+            opacity: 1 !important;
+            transform: scale(1) !important;
+            border-color: #e6dfd8;
+        }
+
+        .pipe-node.lit {
+            border-color: #cc785c;
+            box-shadow: 0 0 0 4px rgba(204, 120, 92, .15);
+        }
+
+        .pipe-arrow {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #6c6a64;
+            font-size: 18px;
+            font-weight: 700;
+            flex-shrink: 0;
+        }
+
+        /* ── Counter ── */
+        .counter {
+            display: inline-block;
+        }
+
+        .pipe-connector {
+            position: relative;
+            height: 2px;
+            background: #e6dfd8;
+            flex: 1;
+        }
+
+        /* ── Step 2 calc box ── */
+        .calc-box {
+            background: #cc785c;
+            border: none;
+            border-radius: 12px;
+            padding: 16px;
+        }
+
+        .calc-box .calc-title {
+            font-weight: 700;
+            font-size: 13px;
+            color: #faf9f5;
+            margin-bottom: 12px;
+        }
+
+        .batch-connector-line {
+            width: 2px;
+            height: 28px;
+            background: #e6dfd8;
+            margin: 0 auto;
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- ── TOP NAV ── -->
+    <nav id="topnav" style="background:#faf9f5; border-bottom:1px solid #e6dfd8; box-shadow:0 1px 3px rgba(0,0,0,.06);">
+        <div class="max-w-5xl mx-auto px-6 flex items-center justify-between" style="height:52px">
+            <div class="flex items-center gap-2">
+                <div
+                    style="width:28px;height:28px;background:#cc785c;border-radius:8px;display:flex;align-items:center;justify-content:center;color:#faf9f5;font-weight:900;font-size:14px;">
+                    P</div>
+                <span style="font-weight:700;color:#141413;font-size:15px;">성과관리 인수인계 <span
+                        style="color:#cc785c;">2026</span></span>
+            </div>
+            <div class="hidden md:flex items-center gap-6" style="font-size:14px; font-weight:600; color:#6c6a64">
+                <a href="#s1" style="transition:color .2s;" onmouseover="this.style.color='#cc785c'"
+                    onmouseout="this.style.color='#6c6a64'">1. 시스템 구조</a>
+                <a href="#s2" style="transition:color .2s;" onmouseover="this.style.color='#cc785c'"
+                    onmouseout="this.style.color='#6c6a64'">2. 산출 로직</a>
+                <a href="#s3" style="transition:color .2s;" onmouseover="this.style.color='#cc785c'"
+                    onmouseout="this.style.color='#6c6a64'">3. 계산 예시</a>
+                <a href="#s4" style="transition:color .2s;" onmouseover="this.style.color='#cc785c'"
+                    onmouseout="this.style.color='#6c6a64'">4. 배치 일정</a>
+                <a href="#s5" style="transition:color .2s;" onmouseover="this.style.color='#cc785c'"
+                    onmouseout="this.style.color='#6c6a64'">5. 월별 작업</a>
+            </div>
+        </div>
+    </nav>
+
+    <main style="padding-top:52px;">
+        <div class="max-w-5xl mx-auto px-4 py-10 space-y-6">
+
+            <!-- ── HERO ── -->
+            <div
+                style="background:linear-gradient(135deg,#cc785c 0%,#a9583e 100%); border-radius:12px; padding:40px 44px; color:#faf9f5; position:relative; overflow:hidden;">
+                <div
+                    style="position:absolute; right:-60px; top:-60px; width:260px; height:260px; border-radius:50%; background:rgba(204,120,92,.12);">
+                </div>
+                <div
+                    style="position:absolute; right:40px; bottom:-40px; width:160px; height:160px; border-radius:50%; background:rgba(204,120,92,.08);">
+                </div>
+                <div style="position:relative; z-index:1;">
+                    <div
+                        style="font-size:13px; font-weight:700; color:#cc785c; letter-spacing:.1em; text-transform:uppercase; margin-bottom:10px;">
+                        HANDOVER GUIDE 2026</div>
+                    <h1
+                        style="font-size:32px; font-weight:800; margin-bottom:10px; line-height:1.3; font-family:'Pretendard',sans-serif;">
+                        힘내십쇼..
+                    </h1>
+                    <p
+                        style="font-size:15px; color:rgba(250,249,245,.85); max-width:520px; line-height:1.7; margin-bottom:28px;">
+                        기업DW와 수기테이블을 결합하여 고객 성과지표를 산출하는 시스템에 대한 설명. <br>파이프라인 흐름, 예외 처리 규칙, 가중평균 산출 로직이 기술되어 있습니다.
+                    </p>
+                    <div style="display:flex; flex-wrap:wrap; gap:10px;">
+                        <div
+                            style="background:rgba(255,255,255,.08); border:1px solid rgba(255,255,255,.12); border-radius:10px; padding:10px 18px; text-align:center; min-width:90px;">
+                            <div class="counter" style="font-size:22px; font-weight:800;" data-target="7"
+                                data-suffix="개">0개</div>
+                            <div style="font-size:13px; color:rgba(250,249,245,.75); margin-top:2px;">수기 관리 테이블</div>
+                        </div>
+                        <div
+                            style="background:rgba(255,255,255,.08); border:1px solid rgba(255,255,255,.12); border-radius:10px; padding:10px 18px; text-align:center; min-width:90px;">
+                            <div class="counter" style="font-size:22px; font-weight:800;" data-target="4"
+                                data-suffix="개">0개</div>
+                            <div style="font-size:13px; color:rgba(250,249,245,.75); margin-top:2px;">핵심 성과 지표</div>
+                        </div>
+                        <div
+                            style="background:rgba(255,255,255,.08); border:1px solid rgba(255,255,255,.12); border-radius:10px; padding:10px 18px; text-align:center; min-width:90px;">
+                            <div class="counter" style="font-size:22px; font-weight:800;" data-target="2"
+                                data-suffix="개">0개</div>
+                            <div style="font-size:13px; color:rgba(250,249,245,.75); margin-top:2px;">예외 고객사</div>
+                        </div>
+                        <div
+                            style="background:rgba(255,255,255,.08); border:1px solid rgba(255,255,255,.12); border-radius:10px; padding:10px 18px; text-align:center; min-width:90px;">
+                            <div style="font-size:22px; font-weight:800;">매월 11일</div>
+                            <div style="font-size:13px; color:rgba(250,249,245,.75); margin-top:2px;">마트 적재 기준일</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ══════════════════════════════════════
+     SECTION 1 — 파이프라인 흐름도 (animated)
+══════════════════════════════════════ -->
+            <div id="s1">
+                <div class="sec-pill reveal"><span>1</span>시스템 구성 및 데이터 파이프라인</div>
+
+                <!-- Pipeline flow card -->
+                <div class="card reveal" style="margin-bottom:14px;">
+                    <div class="card-header">
+                        <div>
+                            <div
+                                style="font-weight:700; font-size:16px; color:#141413; font-family:'Pretendard',sans-serif; margin-bottom:3px;">
+                                데이터 생성 파이프라인</div>
+                            <div style="font-size:13px; color:#6c6a64;">기업DW에서 성과 마트까지 — 데이터 흐름 단계별 시각화</div>
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <!-- Pipeline row -->
+                        <div id="pipeline"
+                            style="display:flex; align-items:center; gap:0; margin-bottom:20px; min-width:0;">
+
+                            <div class="pipe-node" id="pn0" style="min-width:120px; flex:1;">
+                                <div style="font-size:22px; margin-bottom:6px;">🏢</div>
+                                <div style="font-weight:700; font-size:14px; color:#141413; margin-bottom:3px;">기업DW
+                                </div>
+                                <div style="font-size:12px; color:#6c6a64;">원천 매출·손익<br>계정 집계</div>
+                            </div>
+
+                            <div class="pipe-connector" id="pc0" style="min-width:32px;"></div>
+
+                            <div class="pipe-node" id="pn1" style="min-width:130px; flex:1;">
+                                <div style="font-size:22px; margin-bottom:6px;">📋</div>
+                                <div style="font-weight:700; font-size:14px; color:#141413; margin-bottom:3px;">수기
+                                    테이블</div>
+                                <div style="font-size:12px; color:#6c6a64;">KA/GA 정의<br>매출·수주 보정값</div>
+                                <div style="margin-top:6px;"><span class="badge b-amber" style="font-size:11px;">매월
+                                        업데이트</span></div>
+                            </div>
+
+                            <div class="pipe-connector" id="pc1" style="min-width:32px;"></div>
+
+                            <div class="pipe-node" id="pn2" style="min-width:130px; flex:1;">
+                                <div style="font-size:22px; margin-bottom:6px;">🔗</div>
+                                <div style="font-weight:700; font-size:14px; color:#141413; margin-bottom:3px;">고객 마스터
+                                    Join</div>
+                                <div style="font-size:12px; color:#6c6a64;">사업자번호 기준<br>단일 고객 ID 통합</div>
+                                <div
+                                    style="margin-top:6px; font-size:12px; font-family:monospace; color:#cc785c; background:#efe9de; padding:2px 6px; border-radius:4px; display:inline-block;">
+                                    JOIN KEY: <br>고객 ID</div>
+                            </div>
+
+                            <div class="pipe-connector" id="pc2" style="min-width:32px;"></div>
+
+                            <div class="pipe-node" id="pn3"
+                                style="min-width:130px; flex:1; background:#faf3ec; border-color:#c8bfb4;">
+                                <div style="font-size:22px; margin-bottom:6px;">📊</div>
+                                <div style="font-weight:700; font-size:14px; color:#a9583e; margin-bottom:3px;">성과 마트
+                                </div>
+                                <div style="font-size:12px; color:#cc785c;">확정매출 / 수익성<br>수주잔고 / GRR·NRR</div>
+                                <div style="margin-top:6px;"><span class="badge b-blue" style="font-size:11px;">매월 11일
+                                        05:00~</span></div>
+                            </div>
+                        </div>
+
+                        <!-- Pipeline description labels -->
+                        <div id="pipe-desc"
+                            style="min-height:36px; background:#f5f0e8; border-radius:10px; padding:10px 16px; font-size:14px; color:#3d3d3a; transition:all .3s ease;">
+                            <span style="color:#6c6a64;">↑ 파이프라인 단계에 마우스를 올려보세요</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="grid-2col">
+
+                    <!-- 7대 수기 관리 테이블 -->
+                    <div class="card reveal reveal-delay-1">
+                        <div class="card-header">
+                            <div>
+                                <div
+                                    style="font-weight:700; font-size:16px; color:#141413; font-family:'Pretendard',sans-serif; margin-bottom:3px;">
+                                    수기 관리 테이블</div>
+                                <div style="font-size:13px; color:#6c6a64;">시스템 자동화 불가 항목 — 마스터 조인 시 함께 반영</div>
+                                <div style="font-size:13px; color:#6c6a64;">실제 수기테이블은 18개이며, 이 중 주요 관리 대상인 7개만 설명
+                                </div>
+                            </div>
+                        </div>
+                        <div class="card-body" style="padding-top:14px;">
+                            <div style="display:flex; flex-direction:column; gap:6px;">
+                                <div
+                                    style="display:flex; align-items:center; gap:10px; padding:8px 10px; background:#f5f0e8; border-radius:8px; font-size:14px;">
+                                    <span
+                                        style="width:18px; height:18px; background:#efe9de; color:#cc785c; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:12px; font-weight:700; flex-shrink:0;">1</span>
+                                    <div style="flex:1;"><b style="color:#141413;">KA 고객 정의</b> <span
+                                            style="color:#6c6a64; margin-left:4px;"><br>Key Account 식별 기준</span>
+                                    </div><span
+                                        style="font-size:12px; font-weight:700; color:#6c6a64; background:#f5f0e8; border:1px solid #e6dfd8; border-radius:4px; padding:1px 6px; white-space:nowrap; flex-shrink:0;">필요시
+                                        업데이트</span>
+                                </div>
+                                <div
+                                    style="display:flex; align-items:center; gap:10px; padding:8px 10px; background:#f5f0e8; border-radius:8px; font-size:14px;">
+                                    <span
+                                        style="width:18px; height:18px; background:#efe9de; color:#cc785c; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:12px; font-weight:700; flex-shrink:0;">2</span>
+                                    <div style="flex:1;"><b style="color:#141413;">GA 고객 정의</b> <span
+                                            style="color:#6c6a64; margin-left:4px;"><br>General Account 식별
+                                            기준</span></div><span
+                                        style="font-size:12px; font-weight:700; color:#6c6a64; background:#f5f0e8; border:1px solid #e6dfd8; border-radius:4px; padding:1px 6px; white-space:nowrap; flex-shrink:0;">필요시
+                                        업데이트</span>
+                                </div>
+                                <div
+                                    style="display:flex; align-items:center; gap:10px; padding:8px 10px; background:#f5f0e8; border-radius:8px; font-size:14px;">
+                                    <span
+                                        style="width:18px; height:18px; background:#efe9de; color:#cc785c; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:12px; font-weight:700; flex-shrink:0;">3</span>
+                                    <div style="flex:1;"><b style="color:#141413;">고객 그룹핑 정의</b> <span
+                                            style="color:#6c6a64; margin-left:4px;"><br>복수 고객 단일 그룹으로 매핑</span>
+                                    </div>
+                                    <span
+                                        style="font-size:12px; font-weight:700; color:#6c6a64; background:#f5f0e8; border:1px solid #e6dfd8; border-radius:4px; padding:1px 6px; white-space:nowrap; flex-shrink:0;">필요시
+                                        업데이트</span>
+                                </div>
+                                <div
+                                    style="display:flex; align-items:center; gap:10px; padding:8px 10px; background:#f5f0e8; border-radius:8px; font-size:14px;">
+                                    <span
+                                        style="width:18px; height:18px; background:#efe9de; color:#cc785c; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:12px; font-weight:700; flex-shrink:0;">4</span>
+                                    <div style="flex:1;"><b style="color:#141413;">고객군 정의</b> <span
+                                            style="color:#6c6a64; margin-left:4px;"><br>산업군 세그먼트 분류</span></div>
+                                    <span
+                                        style="font-size:12px; font-weight:700; color:#6c6a64; background:#f5f0e8; border:1px solid #e6dfd8; border-radius:4px; padding:1px 6px; white-space:nowrap; flex-shrink:0;">필요시
+                                        업데이트</span>
+                                </div>
+                                <div
+                                    style="display:flex; align-items:center; gap:10px; padding:8px 10px; background:#f5f0e8; border:1.5px solid #c8bfb4; border-radius:8px; font-size:14px;">
+                                    <span
+                                        style="width:18px; height:18px; background:#cc785c; color:#faf9f5; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:12px; font-weight:700; flex-shrink:0;">5</span>
+                                    <div style="flex:1;"><b style="color:#141413;">PL 수익률 정의</b> <span
+                                            style="color:#6c6a64; margin-left:4px;"><br>손익별 PL 이익률 관리</span>
+                                    </div>
+                                    <span
+                                        style="font-size:12px; font-weight:700; color:#cc785c; background:#efe9de; border:1px solid #e6dfd8; border-radius:4px; padding:1px 6px; white-space:nowrap; flex-shrink:0;">매월
+                                        업데이트</span>
+                                </div>
+                                <div
+                                    style="display:flex; align-items:center; gap:10px; padding:8px 10px; background:#f5f0e8; border:1.5px solid #c8bfb4; border-radius:8px; font-size:14px;">
+                                    <span
+                                        style="width:18px; height:18px; background:#cc785c; color:#faf9f5; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:12px; font-weight:700; flex-shrink:0;">6</span>
+                                    <div style="flex:1;"><b style="color:#141413;">매출 조정</b> <span
+                                            style="color:#6c6a64; margin-left:4px;"><br>고객단위 매출 조정시 수기 입력</span></div>
+                                    <span
+                                        style="font-size:12px; font-weight:700; color:#cc785c; background:#efe9de; border:1px solid #e6dfd8; border-radius:4px; padding:1px 6px; white-space:nowrap; flex-shrink:0;">매월
+                                        업데이트</span>
+                                </div>
+                                <div
+                                    style="display:flex; align-items:center; gap:10px; padding:8px 10px; background:#f5f0e8; border:1.5px solid #c8bfb4; border-radius:8px; font-size:14px;">
+                                    <span
+                                        style="width:18px; height:18px; background:#cc785c; color:#faf9f5; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:12px; font-weight:700; flex-shrink:0;">7</span>
+                                    <div style="flex:1;"><b style="color:#141413;">수주이익 조정</b> <span
+                                            style="color:#6c6a64; margin-left:4px;"><br>고객 이익조정을 위한 수기입력</span>
+                                    </div>
+                                    <span
+                                        style="font-size:12px; font-weight:700; color:#cc785c; background:#efe9de; border:1px solid #e6dfd8; border-radius:4px; padding:1px 6px; white-space:nowrap; flex-shrink:0;">매월
+                                        업데이트</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Join 구조 -->
+                    <div class="card reveal reveal-delay-2">
+                        <div class="card-header">
+                            <div>
+                                <div
+                                    style="font-weight:700; font-size:16px; color:#141413; font-family:'Pretendard',sans-serif; margin-bottom:3px;">
+                                    단일 고객 마스터 → 2단계 성과지표 Join 구조</div>
+                                <div style="font-size:13px; color:#6c6a64;">고객 ID를 키로 4개 성과지표와 조인</div>
+                            </div>
+                        </div>
+                        <div class="card-body" style="padding-top:16px;">
+                            <div
+                                style="background:#f5f0e8; border:1.5px solid #c8bfb4; border-radius:12px; padding:16px 18px; color:#141413; margin-bottom:10px;">
+                                <div
+                                    style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
+                                    <span
+                                        style="background:#cc785c; color:#faf9f5; font-size:12px; font-weight:700; padding:2px 8px; border-radius:4px;">1단계</span>
+                                    <span style="font-size:13px; color:#6c6a64;">중복 계정 정제 → 유일 고객 ID 발급</span>
+                                </div>
+                                <div style="font-weight:700; font-size:16px; margin-bottom:12px;">단일 고객 마스터</div>
+                                <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px;">
+                                    <div style="background:#efe9de; border-radius:8px; padding:10px 12px;">
+                                        <div style="font-size:12px; color:#6c6a64; margin-bottom:3px;">매핑 최우선 식별키</div>
+                                        <div style="font-weight:700; color:#cc785c; font-size:15px;">사업자번호</div>
+                                    </div>
+                                    <div style="background:#efe9de; border-radius:8px; padding:10px 12px;">
+                                        <div style="font-size:12px; color:#6c6a64; margin-bottom:3px;">차순위 식별키</div>
+                                        <div style="font-weight:700; color:#141413; font-size:15px;">고객번호 (UCube)</div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div style="display:flex; align-items:center; gap:10px; margin-bottom:10px;">
+                                <div style="flex:1; height:1px; background:#e6dfd8;"></div>
+                                <div
+                                    style="background:#faf3ec; border:1.5px solid #c8bfb4; color:#cc785c; font-size:13px; font-weight:700; padding:4px 12px; border-radius:6px; white-space:nowrap; font-family:monospace;">
+                                    ↓ Join Key: 고객 ID ↓</div>
+                                <div style="flex:1; height:1px; background:#e6dfd8;"></div>
+                            </div>
+                            <div style="border:1.5px solid #c8bfb4; border-radius:12px; padding:14px 16px;">
+                                <div
+                                    style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
+                                    <span
+                                        style="background:#efe9de; color:#cc785c; font-size:12px; font-weight:700; padding:2px 8px; border-radius:4px;">2단계</span>
+                                    <span style="font-size:13px; color:#6c6a64;">고객 ID 단위 4개 성과지표 집계</span>
+                                </div>
+                                <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px;">
+                                    <div style="background:#f5f0e8; border-radius:8px; padding:10px 12px;">
+                                        <div
+                                            style="font-size:12px; font-weight:700; color:#cc785c; margin-bottom:3px; font-family:monospace;">
+                                            Metric 01</div>
+                                        <div style="font-weight:700; font-size:14px; color:#141413; margin-bottom:2px;">
+                                            확정 매출</div>
+                                        <div style="font-size:13px; color:#6c6a64;">보정 완료된 정밀 실적 매출</div>
+                                    </div>
+                                    <div style="background:#f5f0e8; border-radius:8px; padding:10px 12px;">
+                                        <div
+                                            style="font-size:12px; font-weight:700; color:#cc785c; margin-bottom:3px; font-family:monospace;">
+                                            Metric 02</div>
+                                        <div style="font-weight:700; font-size:14px; color:#141413; margin-bottom:2px;">
+                                            수익성 (이익률)</div>
+                                        <div style="font-size:13px; color:#6c6a64;">VRB 심의 + PL 이익률 가중합산</div>
+                                    </div>
+                                    <div style="background:#f5f0e8; border-radius:8px; padding:10px 12px;">
+                                        <div
+                                            style="font-size:12px; font-weight:700; color:#cc785c; margin-bottom:3px; font-family:monospace;">
+                                            Metric 03</div>
+                                        <div style="font-weight:700; font-size:14px; color:#141413; margin-bottom:2px;">
+                                            수주 잔고</div>
+                                        <div style="font-size:13px; color:#6c6a64;">파이프라인+가입번호별 잔여매출</div>
+                                    </div>
+                                    <div style="background:#f5f0e8; border-radius:8px; padding:10px 12px;">
+                                        <div
+                                            style="font-size:12px; font-weight:700; color:#cc785c; margin-bottom:3px; font-family:monospace;">
+                                            Metric 04</div>
+                                        <div style="font-weight:700; font-size:14px; color:#141413; margin-bottom:2px;">
+                                            GRR / NRR</div>
+                                        <div style="font-size:13px; color:#6c6a64;">고객 매출 유지/성장율</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ══════════════════════════════════════
+     SECTION 2 — 수익성 공식 순차 하이라이트
+══════════════════════════════════════ -->
+            <div id="s2" style="padding-top:48px;">
+                <div class="sec-pill reveal"><span>2</span>성과지표 산출 로직</div>
+
+                <div style="display:flex; flex-direction:column; gap:14px;">
+
+                    <!-- 2.1 확정 매출 보정 -->
+                    <div class="card reveal reveal-delay-1">
+                        <div class="card-header">
+                            <div>
+                                <div
+                                    style="font-weight:700; font-size:16px; color:#141413; font-family:'Pretendard',sans-serif; margin-bottom:3px;">
+                                    2.1 확정 매출 산출 및 보정</div>
+                                <div style="font-size:13px; color:#6c6a64;">고객 ID 단위 집계 — 일부 고객사 수기 보정 필요</div>
+                            </div>
+                        </div>
+                        <div class="card-body">
+                            <p style="font-size:14px; color:#3d3d3a; line-height:1.7; margin-bottom:14px;">
+                                고객 ID 단위로 집계된 확정 매출을 기준으로 합니다.<br>단, 사업자번호 없이 보정 전표만 처리되는 일부 고객사는 <br>원장에서 누락되므로 수기 보정이
+                                필요합니다.
+                            </p>
+                            <div class="warn-box">
+                                <div class="title">⚠ 매출 누락 보정 대상 — 월별 수동 기입 필수</div>
+                                <p style="margin-bottom:10px;">
+                                    <b>누락 원인:</b> 사업팀 귀속 → 영업 귀속 보정 시 사업자번호 없이 전표 처리 → 고객단위 집계에서 누락.<br><b>보정금액 산출:</b>
+                                    기업 DW에서 추출 가능 — 각 고객 담당 영업사원 귀속 손익별 <b>보정매출</b> 금액 기준.
+                                </p>
+                                <div style="display:flex; flex-direction:column; gap:6px; margin-bottom:12px;">
+                                    <div
+                                        style="display:flex; align-items:center; justify-content:space-between; background:#f5f0e8; border:1.5px solid #c8bfb4; border-radius:6px; padding:6px 10px; font-size:14px;">
+                                        <b style="color:#141413;">에스원</b> <span
+                                            style="font-size:13px; color:#6c6a64; font-family:monospace;">M21/M2M</span>
+                                        <span style="color:#cc785c; font-weight:600;">월평균 4~5억 원</span>
+                                    </div>
+                                    <div
+                                        style="display:flex; align-items:center; justify-content:space-between; background:#f5f0e8; border:1.5px solid #c8bfb4; border-radius:6px; padding:6px 10px; font-size:14px;">
+                                        <b style="color:#141413;">KGM</b> <span
+                                            style="font-size:13px; color:#6c6a64; font-family:monospace;">T35/커넥티드카</span>
+                                        <span style="color:#cc785c; font-weight:600;">월평균 4~5억 원</span>
+                                    </div>
+                                    <div
+                                        style="display:flex; align-items:center; justify-content:space-between; background:#f5f0e8; border:1.5px solid #c8bfb4; border-radius:6px; padding:6px 10px; font-size:14px;">
+                                        <b style="color:#141413;">토요타</b> <span
+                                            style="font-size:13px; color:#6c6a64; font-family:monospace;">T35/커넥티드카</span>
+                                        <span style="color:#cc785c; font-weight:600;">월평균 4~5억 원</span>
+                                    </div>
+                                </div>
+                                <div
+                                    style="background:#faf3ec; border:1.5px solid #c8bfb4; border-radius:8px; padding:10px 12px; font-size:13px; font-weight:700; color:#cc785c;">
+                                    📌 매월 보정 매출 발생 시 '매출조정' 수기테이블에 필수 수동 기입
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 2.2 수익성 공식 -->
+                    <div class="card reveal reveal-delay-2">
+                        <div class="card-header">
+                            <div>
+                                <div
+                                    style="font-weight:700; font-size:16px; color:#141413; font-family:'Pretendard',sans-serif; margin-bottom:3px;">
+                                    2.2 수익성 산출 공식</div>
+                                <div style="font-size:13px; color:#6c6a64;">VRB 심의 이력 유무에 따라 적용 이익률이 달라짐</div>
+                            </div>
+                        </div>
+                        <div class="card-body">
+                            <div class="formula-block" id="formulaBlock" style="margin-bottom:16px;">
+                                <div class="formula-result">
+                                    <div>
+                                        <div
+                                            style="font-size:12px; color:#cc785c; font-weight:700; text-transform:uppercase; letter-spacing:.06em; margin-bottom:4px;">
+                                            산출 이익</div>
+                                        <div style="font-size:16px; font-weight:800;">총 이익금</div>
+                                    </div>
+                                </div>
+                                <div class="formula-op">=</div>
+                                <div class="formula-term" id="ft1"
+                                    style="border-right:1.5px solid #c8bfb4; text-align:center;">
+                                    <div
+                                        style="font-size:12px; font-weight:700; color:#cc785c; text-transform:uppercase; letter-spacing:.04em; margin-bottom:10px;">
+                                        VRB 심의 이력 있는 손익</div>
+                                    <div style="font-size:15px; font-weight:700; color:#141413; margin-bottom:4px;">확정매출
+                                    </div>
+                                    <div style="font-size:15px; color:#6c6a64; margin-bottom:4px;">×</div>
+                                    <div style="margin-bottom:4px;"><span
+                                            style="background:#efe9de; color:#cc785c; padding:2px 8px; border-radius:4px; font-size:14px; font-weight:700;">VRB
+                                            가중평균 이익률</span></div>
+                                    <div style="font-size:13px; color:#6c6a64; margin-top:2px;">반영이익합계 ÷ 반영매출합계</div>
+                                    <div class="hl-label">👆 여러 심의가 있으면 단순평균 ❌ <br> >> 반영금액 기준 가중평균</div>
+                                </div>
+                                <div class="formula-op">+</div>
+                                <div class="formula-term" id="ft2" style="text-align:center;">
+                                    <div
+                                        style="font-size:12px; font-weight:700; color:#6c6a64; text-transform:uppercase; letter-spacing:.04em; margin-bottom:10px;">
+                                        VRB 심의 이력 없는 손익</div>
+                                    <div style="font-size:15px; font-weight:700; color:#141413; margin-bottom:4px;">확정매출
+                                    </div>
+                                    <div style="font-size:15px; color:#6c6a64; margin-bottom:4px;">×</div>
+                                    <div style="margin-bottom:4px;"><span
+                                            style="background:#efe9de; color:#cc785c; padding:2px 8px; border-radius:4px; font-size:14px; font-weight:700;">PL
+                                            이익률 기준값</span></div>
+                                    <div style="font-size:13px; color:#6c6a64; margin-top:2px;">수기 테이블 사전 정의 고정값</div>
+                                    <div class="hl-label" style="color:#6c6a64;">👆 VRB 심의 없는 손익에는 <br>PL 이익률 테이블 값을 그대로
+                                        적용
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- 심의 유형 구분 -->
+                            <div
+                                style="background:#f5f0e8; border:1.5px solid #c8bfb4; border-radius:10px; padding:14px 16px; margin-bottom:12px;">
+                                <div style="font-size:13px; font-weight:700; color:#3d3d3a; margin-bottom:10px;">VRB 심의
+                                    유형</div>
+                                <div style="display:flex; flex-direction:column; gap:8px;">
+                                    <div style="display:flex; align-items:flex-start; gap:10px; font-size:14px;">
+                                        <span class="badge b-blue" style="flex-shrink:0; margin-top:1px;">일반 심의</span>
+                                        <span style="color:#3d3d3a;">계약 기간 동안 지속 적용. 반영개월수 × 월매출·월이익으로 가중평균 산출</span>
+                                    </div>
+                                    <div style="display:flex; align-items:flex-start; gap:10px; font-size:14px;">
+                                        <span class="badge b-purple" style="flex-shrink:0; margin-top:1px;">일회성
+                                            심의</span>
+                                        <span style="color:#3d3d3a;">특정 월 1회만 적용. 해당 월 매출·이익만 반영이익/반영매출에 포함</span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div
+                                style="background:#f5f0e8; border:1.5px solid #c8bfb4; border-radius:10px; padding:12px 14px; font-size:14px; color:#3d3d3a; display:flex; gap:10px; align-items:flex-start;">
+                                <span style="font-size:17px; flex-shrink:0;">💡</span>
+                                <div>동일 손익에 여러 심의가 존재할 경우 단순 산술평균 ❌ — 반드시 <b style="color:#cc785c;">[반영이익 합계 ÷ 반영매출
+                                        합계]</b> 방식으로 산출</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 2.3 수익성 예외 처리 -->
+                    <div class="card reveal reveal-delay-3">
+                        <div class="card-header">
+                            <div>
+                                <div
+                                    style="font-weight:700; font-size:16px; color:#141413; font-family:'Pretendard',sans-serif; margin-bottom:3px;">
+                                    2.3 특정 고객사 수익성 예외 처리</div>
+                                <div style="font-size:13px; color:#6c6a64;">일반 로직 적용 시 이익률 왜곡이 발생하는 2개 고객사 — 별도 규칙 강제 적용
+                                </div>
+                            </div>
+                        </div>
+                        <div class="card-body" style="display:flex; flex-direction:column; gap:12px;">
+                            <div class="grid-2col-e">
+                                <div class="exc-card reveal reveal-delay-1">
+                                    <div class="exc-head">
+                                        <span>네이버 코람코 가산센터 (IDC)</span>
+                                        <span
+                                            style="background:rgba(255,255,255,.2); font-size:13px; padding:2px 8px; border-radius:4px;">예외
+                                            #1</span>
+                                    </div>
+                                    <div class="exc-body">
+                                        <div class="exc-row">
+                                            <div class="exc-label prob">✗ 문제</div>
+                                            <div class="exc-text">심의 규모가 비대하고 이익률이 <b style="color:#cc785c;">약
+                                                    1.53%</b>로 극히 낮으나, 초기
+                                                매출이 과소 계상되어 이익률 왜곡 발생</div>
+                                        </div>
+                                        <div class="exc-row" style="margin-bottom:0;">
+                                            <div class="exc-label fix">✓ 조정</div>
+                                            <div class="exc-text">심의상 매출 대신 <b style="color:#cc785c;">실제 청구 매출(Billing)
+                                                    기준으로 역산</b>
+                                                적용</div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="exc-card reveal reveal-delay-2">
+                                    <div class="exc-head">
+                                        <span>한전 (KEPCO) 전력통신</span>
+                                        <span
+                                            style="background:rgba(255,255,255,.2); font-size:13px; padding:2px 8px; border-radius:4px;">예외
+                                            #2</span>
+                                    </div>
+                                    <div class="exc-body">
+                                        <div class="exc-row">
+                                            <div class="exc-label prob">✗ 문제</div>
+                                            <div class="exc-text">한전 매출의 대부분이 전력통신 상품이고, 전력통신 매출의 대부분이 한전에서 발생 → 등록된 VRB
+                                                심의 규모가 극히
+                                                작아 일반 로직 적용 시 정합성 훼손</div>
+                                        </div>
+                                        <div class="exc-row" style="margin-bottom:0;">
+                                            <div class="exc-label fix">✓ 조정</div>
+                                            <div class="exc-text">심의 유무 무관하게 전력통신 손익 전체에 <b style="color:#cc785c;">PL
+                                                    이익률 일괄 강제
+                                                    적용</b></div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="tbl-wrap">
+                                <table>
+                                    <thead>
+                                        <tr>
+                                            <th>고객사</th>
+                                            <th>일반 로직</th>
+                                            <th style="color:#6c6a64;">왜곡 원인</th>
+                                            <th style="color:#cc785c;">적용 예외 규칙</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                            <td style="font-weight:600; color:#141413; white-space:nowrap;">네이버 코람코
+                                                (IDC)</td>
+                                            <td style="color:#6c6a64;">심의 매출 기준 역산</td>
+                                            <td style="color:#6c6a64;">심의 이익률 1.53% + 초기 매출 과소 계상</td>
+                                            <td style="color:#cc785c; font-weight:600;">Billing 매출 기준으로 역산 적용</td>
+                                        </tr>
+                                        <tr>
+                                            <td style="font-weight:600; color:#141413; white-space:nowrap;">한전 KEPCO
+                                                전력통신</td>
+                                            <td style="color:#6c6a64;">VRB 이력 있으면 심의 이익률 적용</td>
+                                            <td style="color:#6c6a64;">한전↔전력통신 상호 집중 구조 → VRB 심의 극소, 일반 로직 정합성 훼손</td>
+                                            <td style="color:#cc785c; font-weight:600;">VRB 무관, PL 이익률 강제 일괄 적용</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+
+            <!-- ══════════════════════════════════════
+     SECTION 3 — 계산 예시 (row-by-row + calc reveal)
+══════════════════════════════════════ -->
+            <div id="s3" style="padding-top:48px;">
+                <div class="sec-pill reveal"><span>3</span>산출 상세 예시 — 그룹A 시뮬레이션 (2026.05)</div>
+
+                <!-- Step 1 -->
+                <div class="card reveal" style="margin-bottom:10px;">
+                    <div class="card-header" style="flex-wrap:wrap; gap:10px;">
+                        <div>
+                            <div class="step-pill"><span>1</span>VRB 심의 데이터 — 반영개월 및 반영금액 산출</div>
+                            <div style="font-size:13px; color:#6c6a64;">'26년 5월 기준: '26년 1~5월 중 해당 심의 계약이 유효한 개월 수를
+                                반영개월수로 사용</div>
+                        </div>
+                        <div style="display:flex; flex-wrap:wrap; gap:6px; margin-left:auto;">
+                            <span class="legend-pill b-blue"><span
+                                    style="display:inline-block; width:8px; height:8px; border-radius:2px; background:#cc785c; margin-right:3px;"></span>'26년
+                                내 종료</span>
+                            <span class="legend-pill b-blue"><span
+                                    style="display:inline-block; width:8px; height:8px; border-radius:2px; background:#cc785c; margin-right:3px;"></span>'26년
+                                이후 종료</span>
+                            <span class="legend-pill" style="background:#efe9de; color:#6c6a64;"><span
+                                    style="display:inline-block; width:8px; height:8px; border-radius:2px; background:#6c6a64; margin-right:3px;"></span>'26년
+                                2월 이후 시작</span>
+                            <span class="legend-pill b-purple"><span
+                                    style="display:inline-block; width:8px; height:8px; border-radius:2px; background:#cc785c; margin-right:3px;"></span>일회성</span>
+                        </div>
+                    </div>
+                    <div class="tbl-wrap">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>고객명</th>
+                                    <th>그룹명</th>
+                                    <th class="r">손익<br>코드</th>
+                                    <th>손익명</th>
+                                    <th>심의명</th>
+                                    <th>심의유형</th>
+                                    <th class="r">계약<br>기간(월)</th>
+                                    <th class="r">매출발생<br>시작월</th>
+                                    <th class="r">매출발생<br>종료월</th>
+                                    <th class="r">심의<br>총매출</th>
+                                    <th class="r">심의<br>총이익</th>
+                                    <th class="r">심의<br>이익률</th>
+                                    <th class="r">심의<br>월매출</th>
+                                    <th class="r">심의<br>월이익</th>
+                                    <th class="r" style="background:#faf3ec; color:#cc785c;">반영<br>개월수</th>
+                                    <th class="r" style="background:#faf3ec; color:#cc785c;">반영<br>매출</th>
+                                    <th class="r" style="background:#faf3ec; color:#cc785c;">반영<br>이익</th>
+                                </tr>
+                            </thead>
+                            <tbody id="vrbTableBody">
+                                <tr class="tbl-row-reveal row-amber" data-pl="A">
+                                    <td style="font-weight:600; color:#141413; white-space:nowrap;">고객A</td>
+                                    <td style="color:#6c6a64; white-space:nowrap;">그룹A</td>
+                                    <td class="num code">A</td>
+                                    <td style="white-space:nowrap;">전화</td>
+                                    <td style="white-space:nowrap; color:#6c6a64;">심의1</td>
+                                    <td><span class="badge b-blue" style="font-size:12px;">기저</span></td>
+                                    <td class="num">10</td>
+                                    <td class="num" style="color:#6c6a64;">25-06</td>
+                                    <td class="num" style="font-weight:700;">26-03</td>
+                                    <td class="num">3.0억</td>
+                                    <td class="num">3,600만</td>
+                                    <td class="num">12.0%</td>
+                                    <td class="num">3,000만</td>
+                                    <td class="num">360만</td>
+                                    <td class="num" style="font-weight:700;">3</td>
+                                    <td class="num" style="font-weight:700;">9,000만</td>
+                                    <td class="num" style="font-weight:700;">1,080만</td>
+                                </tr>
+                                <tr class="tbl-row-reveal row-blue" data-pl="A">
+                                    <td style="font-weight:600; color:#141413; white-space:nowrap;">고객A</td>
+                                    <td style="color:#6c6a64; white-space:nowrap;">그룹A</td>
+                                    <td class="num code">A</td>
+                                    <td style="white-space:nowrap;">전화</td>
+                                    <td style="white-space:nowrap; color:#6c6a64;">심의2</td>
+                                    <td><span class="badge b-blue" style="font-size:12px;">기저</span></td>
+                                    <td class="num">12</td>
+                                    <td class="num" style="color:#6c6a64;">26-01</td>
+                                    <td class="num" style="font-weight:600;">26-12</td>
+                                    <td class="num">4.8억</td>
+                                    <td class="num">6,720만</td>
+                                    <td class="num">14.0%</td>
+                                    <td class="num">4,000만</td>
+                                    <td class="num">560만</td>
+                                    <td class="num" style="font-weight:700;">5</td>
+                                    <td class="num" style="font-weight:700;">2억</td>
+                                    <td class="num" style="font-weight:700;">2,800만</td>
+                                </tr>
+                                <tr class="tbl-row-reveal row-green" data-pl="I">
+                                    <td style="font-weight:600; color:#141413; white-space:nowrap;">고객A</td>
+                                    <td style="color:#6c6a64; white-space:nowrap;">그룹A</td>
+                                    <td class="num code">I</td>
+                                    <td style="white-space:nowrap;">IDC</td>
+                                    <td style="white-space:nowrap; color:#6c6a64;">심의3</td>
+                                    <td><span class="badge b-green" style="font-size:12px;">기저</span></td>
+                                    <td class="num">36</td>
+                                    <td class="num" style="color:#6c6a64;">24-09</td>
+                                    <td class="num" style="font-weight:600;">27-08</td>
+                                    <td class="num">21.6억</td>
+                                    <td class="num">1.73억</td>
+                                    <td class="num">8.0%</td>
+                                    <td class="num">6,000만</td>
+                                    <td class="num">480만</td>
+                                    <td class="num" style="font-weight:700;">5</td>
+                                    <td class="num" style="font-weight:700;">3억</td>
+                                    <td class="num" style="font-weight:700;">2,400만</td>
+                                </tr>
+                                <tr class="tbl-row-reveal row-green" data-pl="I">
+                                    <td style="font-weight:600; color:#141413; white-space:nowrap;">고객B</td>
+                                    <td style="color:#6c6a64; white-space:nowrap;">그룹A</td>
+                                    <td class="num code">I</td>
+                                    <td style="white-space:nowrap;">IDC</td>
+                                    <td style="white-space:nowrap; color:#6c6a64;">심의4</td>
+                                    <td><span class="badge b-green" style="font-size:12px;">기저</span></td>
+                                    <td class="num">12</td>
+                                    <td class="num" style="font-weight:700;">26-03</td>
+                                    <td class="num" style="font-weight:600;">27-02</td>
+                                    <td class="num">3.6억</td>
+                                    <td class="num">3,600만</td>
+                                    <td class="num">10.0%</td>
+                                    <td class="num">3,000만</td>
+                                    <td class="num">300만</td>
+                                    <td class="num" style="font-weight:700;">3</td>
+                                    <td class="num" style="font-weight:700;">9,000만</td>
+                                    <td class="num" style="font-weight:700;">900만</td>
+                                </tr>
+                                <tr class="tbl-row-reveal row-blue" data-pl="B">
+                                    <td style="font-weight:600; color:#141413; white-space:nowrap;">고객B</td>
+                                    <td style="color:#6c6a64; white-space:nowrap;">그룹A</td>
+                                    <td class="num code">B</td>
+                                    <td style="white-space:nowrap;">인터넷</td>
+                                    <td style="white-space:nowrap; color:#6c6a64;">심의5</td>
+                                    <td><span class="badge b-blue" style="font-size:12px;">기저</span></td>
+                                    <td class="num">24</td>
+                                    <td class="num" style="color:#6c6a64;">25-02</td>
+                                    <td class="num" style="font-weight:600;">27-01</td>
+                                    <td class="num">4.8억</td>
+                                    <td class="num">7,200만</td>
+                                    <td class="num">15.0%</td>
+                                    <td class="num">2,000만</td>
+                                    <td class="num">300만</td>
+                                    <td class="num" style="font-weight:700;">5</td>
+                                    <td class="num" style="font-weight:700;">1억</td>
+                                    <td class="num" style="font-weight:700;">1,500만</td>
+                                </tr>
+                                <tr class="tbl-row-reveal row-amber" data-pl="B">
+                                    <td style="font-weight:600; color:#141413; white-space:nowrap;">고객B</td>
+                                    <td style="color:#6c6a64; white-space:nowrap;">그룹A</td>
+                                    <td class="num code">B</td>
+                                    <td style="white-space:nowrap;">인터넷</td>
+                                    <td style="white-space:nowrap; color:#6c6a64;">심의6</td>
+                                    <td><span class="badge b-blue" style="font-size:12px;">기저</span></td>
+                                    <td class="num">6</td>
+                                    <td class="num" style="color:#6c6a64;">25-08</td>
+                                    <td class="num" style="font-weight:700;">26-01</td>
+                                    <td class="num">1.2억</td>
+                                    <td class="num">1,560만</td>
+                                    <td class="num">13.0%</td>
+                                    <td class="num">2,000만</td>
+                                    <td class="num">260만</td>
+                                    <td class="num" style="font-weight:700;">1</td>
+                                    <td class="num" style="font-weight:700;">2,000만</td>
+                                    <td class="num" style="font-weight:700;">260만</td>
+                                </tr>
+                                <tr class="tbl-row-reveal row-purple" data-pl="B">
+                                    <td style="font-weight:600; color:#141413; white-space:nowrap;">고객B</td>
+                                    <td style="color:#6c6a64; white-space:nowrap;">그룹A</td>
+                                    <td class="num code">B</td>
+                                    <td style="white-space:nowrap;">인터넷</td>
+                                    <td style="white-space:nowrap; color:#6c6a64;">심의7</td>
+                                    <td><span class="badge b-purple" style="font-size:12px;">일회성</span></td>
+                                    <td class="num">—</td>
+                                    <td class="num" style="font-weight:700;">26-03</td>
+                                    <td class="num" style="font-weight:700;">26-03</td>
+                                    <td class="num">10억</td>
+                                    <td class="num">3,200만</td>
+                                    <td class="num">3.2%</td>
+                                    <td class="num">10억</td>
+                                    <td class="num">3,200만</td>
+                                    <td class="num" style="font-weight:700;">1</td>
+                                    <td class="num" style="font-weight:700;">10억</td>
+                                    <td class="num" style="font-weight:700;">3,200만</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <div
+                        style="padding:10px 16px; background:#f5f0e8; border-top:1.5px solid #c8bfb4; display:flex; flex-wrap:wrap; gap:16px; font-size:13px; color:#6c6a64;">
+                        <span style="display:inline-flex; align-items:center; gap:5px;"><span
+                                style="display:inline-block; width:10px; height:10px; border-radius:2px; background:#f5f0e8; border:1px solid #e6dfd8;"></span>
+                            <b>26년 내 종료:</b> 1월~종료월까지만 반영</span>
+                        <span style="display:inline-flex; align-items:center; gap:5px;"><span
+                                style="display:inline-block; width:10px; height:10px; border-radius:2px; background:#f5f0e8; border:1px solid #cc785c;"></span>
+                            <b>26년 이후 종료:</b> 1~5월 전체 반영 (단, 시작월이 '26년이면 시작월~5월)</span>
+                        <span style="display:inline-flex; align-items:center; gap:5px;"><span
+                                style="display:inline-block; width:10px; height:10px; border-radius:2px; background:#f5f0e8; border:1px solid #e6dfd8;"></span>
+                            <b>26년 2월 이후 시작:</b> 시작월~5월까지만 반영</span>
+                        <span style="display:inline-flex; align-items:center; gap:5px;"><span
+                                style="display:inline-block; width:10px; height:10px; border-radius:2px; background:#efe9de; border:1px solid #cc785c;"></span>
+                            <b>일회성:</b> 해당 월 1회만 반영</span>
+                    </div>
+                </div>
+
+                <!-- Step 2: 가중평균 — animated calc reveal -->
+                <div style="background:#efe9de; border-radius:16px; padding:20px 24px; margin-bottom:10px; color:#141413; border:1.5px solid #c8bfb4;"
+                    id="calcSection">
+                    <div class="step-pill"><span>2</span>손익별 가중평균 이익률 산출</div>
+                    <p style="font-size:14px; color:#6c6a64; margin-bottom:16px;">동일 손익에 여러 심의가 존재 → 반영이익 합계 ÷ 반영매출 합계
+                    </p>
+                    <div style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:10px;">
+
+                        <!-- 전화 (A) -->
+                        <div class="calc-box" id="calcA">
+                            <div class="calc-title">📞 전화 (A)</div>
+                            <div
+                                style="font-size:13px; font-family:monospace; color:rgba(250,249,245,.8); line-height:2.1;">
+                                <div class="calc-line">반영매출: 9,000만 + 2억</div>
+                                <div class="calc-line"><span style="color:#faf9f5; font-weight:600;">= 2억 9,000만</span>
+                                </div>
+                                <div class="calc-line">반영이익: 1,080만 + 2,800만</div>
+                                <div class="calc-line"><span style="color:#faf9f5; font-weight:600;">= 3,880만</span>
+                                </div>
+                            </div>
+                            <div class="calc-result"
+                                style="margin-top:12px; padding-top:10px; border-top:1px solid rgba(250,249,245,.3); font-weight:700; color:#faf9f5; font-size:15px;">
+                                3,880만 / 2.9억 = <span class="counter" style="font-size:20px;" data-target="13.4"
+                                    data-suffix="%" data-float="true">0%</span>
+                            </div>
+                        </div>
+
+                        <!-- IDC (I) -->
+                        <div class="calc-box" id="calcI">
+                            <div class="calc-title">🏢 IDC (I)</div>
+                            <div
+                                style="font-size:13px; font-family:monospace; color:rgba(250,249,245,.8); line-height:2.1;">
+                                <div class="calc-line">반영매출: 3억 + 9,000만</div>
+                                <div class="calc-line"><span style="color:#faf9f5; font-weight:600;">= 3억 9,000만</span>
+                                </div>
+                                <div class="calc-line">반영이익: 2,400만 + 900만</div>
+                                <div class="calc-line"><span style="color:#faf9f5; font-weight:600;">= 3,300만</span>
+                                </div>
+                            </div>
+                            <div class="calc-result"
+                                style="margin-top:12px; padding-top:10px; border-top:1px solid rgba(250,249,245,.3); font-weight:700; color:#faf9f5; font-size:15px;">
+                                3,300만 / 3.9억 = <span class="counter" style="font-size:20px;" data-target="8.5"
+                                    data-suffix="%" data-float="true">0%</span>
+                            </div>
+                        </div>
+
+                        <!-- 인터넷 (B) -->
+                        <div class="calc-box" id="calcB">
+                            <div class="calc-title">🌐 인터넷 (B)</div>
+                            <div
+                                style="font-size:13px; font-family:monospace; color:rgba(250,249,245,.8); line-height:2.1;">
+                                <div class="calc-line">반영매출: 1억 + 2,000만 + <span
+                                        style="color:#faf9f5; font-weight:600;">10억</span></div>
+                                <div class="calc-line"><span style="color:#faf9f5; font-weight:600;">= 11억 2,000만</span>
+                                </div>
+                                <div class="calc-line">반영이익: 1,500만 + 260만 + <span
+                                        style="color:#faf9f5; font-weight:600;">3,200만</span>
+                                </div>
+                                <div class="calc-line"><span style="color:#faf9f5; font-weight:600;">= 4,960만</span>
+                                </div>
+                            </div>
+                            <div class="calc-result"
+                                style="margin-top:12px; padding-top:10px; border-top:1px solid rgba(250,249,245,.3); font-weight:700; color:#faf9f5; font-size:15px;">
+                                4,960만 / 11.2억 = <span class="counter" style="font-size:20px;" data-target="4.4"
+                                    data-suffix="%" data-float="true">0%</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Step 2 Chart: 반영매출 비중 도넛 -->
+                    <div style="background:#efe9de; border-radius:16px; padding:20px 24px; margin-bottom:10px; border:1.5px solid #c8bfb4;"
+                        class="grid-donut">
+                        <div>
+                            <div
+                                style="font-size:14px; font-weight:700; color:#3d3d3a; text-transform:uppercase; letter-spacing:.06em; margin-bottom:6px;">
+                                반영매출 구성 비중</div>
+                            <div style="font-size:13px; color:#6c6a64; margin-bottom:16px;">손익별 반영매출 합계 기준 — 비중이 클수록 해당
+                                손익 이익률이 가중평균에 미치는 영향이 큼</div>
+                            <div style="display:flex; flex-direction:column; gap:8px;">
+                                <div style="display:flex; align-items:center; gap:10px; font-size:14px;">
+                                    <span
+                                        style="width:10px; height:10px; border-radius:50%; background:#cc785c; flex-shrink:0;"></span>
+                                    <span style="color:#6c6a64; min-width:60px;">전화 (A)</span>
+                                    <div
+                                        style="flex:1; background:#e6dfd8; border-radius:4px; height:6px; overflow:hidden;">
+                                        <div style="width:17.6%; height:100%; background:#cc785c; border-radius:4px;">
+                                        </div>
+                                    </div>
+                                    <span
+                                        style="color:#3d3d3a; font-weight:700; font-family:monospace; min-width:44px; text-align:right;">17.6%</span>
+                                    <span
+                                        style="color:#cc785c; font-weight:700; font-family:monospace; min-width:36px; text-align:right;">13.4%</span>
+                                </div>
+                                <div style="display:flex; align-items:center; gap:10px; font-size:14px;">
+                                    <span
+                                        style="width:10px; height:10px; border-radius:50%; background:#5db8a6; flex-shrink:0;"></span>
+                                    <span style="color:#6c6a64; min-width:60px;">IDC (I)</span>
+                                    <div
+                                        style="flex:1; background:#e6dfd8; border-radius:4px; height:6px; overflow:hidden;">
+                                        <div style="width:23.2%; height:100%; background:#5db8a6; border-radius:4px;">
+                                        </div>
+                                    </div>
+                                    <span
+                                        style="color:#3d3d3a; font-weight:700; font-family:monospace; min-width:44px; text-align:right;">23.2%</span>
+                                    <span
+                                        style="color:#cc785c; font-weight:700; font-family:monospace; min-width:36px; text-align:right;">8.5%</span>
+                                </div>
+                                <div style="display:flex; align-items:center; gap:10px; font-size:14px;">
+                                    <span
+                                        style="width:10px; height:10px; border-radius:50%; background:#8e8b82; flex-shrink:0;"></span>
+                                    <span style="color:#6c6a64; min-width:60px;">인터넷 (B)</span>
+                                    <div
+                                        style="flex:1; background:#e6dfd8; border-radius:4px; height:6px; overflow:hidden;">
+                                        <div style="width:66.7%; height:100%; background:#8e8b82; border-radius:4px;">
+                                        </div>
+                                    </div>
+                                    <span
+                                        style="color:#3d3d3a; font-weight:700; font-family:monospace; min-width:44px; text-align:right;">66.7%</span>
+                                    <span
+                                        style="color:#cc785c; font-weight:700; font-family:monospace; min-width:36px; text-align:right;">4.4%</span>
+                                </div>
+                                <div
+                                    style="font-size:12px; color:#6c6a64; margin-top:4px; padding-top:8px; border-top:1px solid #c8bfb4;">
+                                    비중% · 이익률% 순</div>
+                            </div>
+                        </div>
+                        <div style="position:relative; height:200px;">
+                            <canvas id="donutChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Step 3: 최종 합산 -->
+                <div class="card reveal" id="step3Card">
+                    <div class="card-header">
+                        <div class="step-pill" style="margin-bottom:0;"><span>3</span>그룹A 최종 성과 합산 (2026.05 실적 마트)</div>
+                        <div style="font-size:13px; color:#6c6a64; margin-left:4px; align-self:center;">심의 가중평균(파란색)과 PL
+                            이익률(초록색) 결합</div>
+                    </div>
+                    <div class="tbl-wrap">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>손익<br>코드</th>
+                                    <th>손익명</th>
+                                    <th>이익률 근거</th>
+                                    <th class="r">확정 매출 (A)</th>
+                                    <th class="r">적용 이익률 (B)</th>
+                                    <th class="r" style="color:#cc785c;">산출 이익 (A×B)</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr class="tbl-row-reveal">
+                                    <td class="code">A</td>
+                                    <td>전화</td>
+                                    <td><span class="badge b-blue">심의 가중평균</span> 심의1, 심의2</td>
+                                    <td class="num">290,000,000 원</td>
+                                    <td class="num" style="font-weight:700; color:#cc785c;">13.4%</td>
+                                    <td class="num" style="color:#cc785c; font-weight:600;">38,860,000 원</td>
+                                </tr>
+                                <tr class="tbl-row-reveal">
+                                    <td class="code">I</td>
+                                    <td>IDC</td>
+                                    <td><span class="badge b-blue">심의 가중평균</span> 심의3, 심의4</td>
+                                    <td class="num">390,000,000 원</td>
+                                    <td class="num" style="font-weight:700; color:#cc785c;">8.5%</td>
+                                    <td class="num" style="color:#cc785c; font-weight:600;">33,150,000 원</td>
+                                </tr>
+                                <tr class="tbl-row-reveal">
+                                    <td class="code">B</td>
+                                    <td>인터넷</td>
+                                    <td><span class="badge b-blue">심의 가중평균</span> 심의5, 심의6, 심의7</td>
+                                    <td class="num">1,120,000,000 원</td>
+                                    <td class="num" style="font-weight:700; color:#cc785c;">4.4%</td>
+                                    <td class="num" style="color:#cc785c; font-weight:600;">49,280,000 원</td>
+                                </tr>
+                                <tr class="tbl-row-reveal">
+                                    <td class="code">S</td>
+                                    <td>메시징</td>
+                                    <td><span class="badge b-green">PL 이익률</span></td>
+                                    <td class="num">80,000,000 원</td>
+                                    <td class="num" style="font-weight:700; color:#cc785c;">7.0%</td>
+                                    <td class="num" style="color:#cc785c; font-weight:600;">5,600,000 원</td>
+                                </tr>
+                                <tr class="tbl-row-reveal">
+                                    <td class="code">M</td>
+                                    <td>M2M</td>
+                                    <td><span class="badge b-green">PL 이익률</span></td>
+                                    <td class="num">40,000,000 원</td>
+                                    <td class="num" style="font-weight:700; color:#cc785c;">5.0%</td>
+                                    <td class="num" style="color:#cc785c; font-weight:600;">2,000,000 원</td>
+                                </tr>
+                                <tr class="row-total">
+                                    <td colspan="2" style="color:#faf9f5;">합계</td>
+                                    <td style="color:#faf9f5; font-size:13px;">그룹A 전체 성과</td>
+                                    <td class="num"><span class="counter" data-target="1920000000" data-suffix=" 원"
+                                            data-comma="true">0 원</span></td>
+                                    <td class="num accent">최종 이익률: <span class="counter" data-target="6.7"
+                                            data-suffix="%" data-float="true">0%</span></td>
+                                    <td class="num accent"><span class="counter" data-target="128890000"
+                                            data-suffix=" 원" data-comma="true">0 원</span></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <!-- Step 3 Charts trigger -->
+                    <div id="step3Charts"></div>
+                </div>
+
+                <!-- Step 4: 조정 방법 예시 -->
+                <div style="background:#efe9de; border-radius:16px; padding:20px 24px; margin-top:10px; color:#141413; border:1.5px solid #c8bfb4;"
+                    class="reveal">
+                    <div class="step-pill"><span>4</span>수익성 조정 방법 예시 — 고객A 전화 손익을 13.4% → 15.0%로 올리기</div>
+                    <p style="font-size:14px; color:#6c6a64; margin-bottom:20px;">반영매출 0원, 반영이익 차액만 심의로 추가하면 목표 이익률 달성
+                    </p>
+
+                    <div style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:10px; margin-bottom:20px;">
+
+                        <!-- Before -->
+                        <div style="background:#f5f0e8; border:1.5px solid #c8bfb4; border-radius:12px; padding:16px;">
+                            <div
+                                style="font-size:11px; font-weight:700; color:#6c6a64; text-transform:uppercase; letter-spacing:.08em; margin-bottom:12px;">
+                                BEFORE — 현재</div>
+                            <div style="font-size:13px; font-family:monospace; color:#6c6a64; line-height:2.2;">
+                                <div>반영매출 합계</div>
+                                <div style="color:#141413; font-weight:700; font-size:15px;">2억 9,000만 원</div>
+                                <div style="margin-top:6px;">반영이익 합계</div>
+                                <div style="color:#141413; font-weight:700; font-size:15px;">3,880만 원</div>
+                            </div>
+                            <div
+                                style="margin-top:14px; padding-top:12px; border-top:1px solid #c8bfb4; font-weight:700; font-size:18px; color:#6c6a64;">
+                                이익률 = <span style="color:#6c6a64;">13.4%</span>
+                            </div>
+                        </div>
+
+                        <!-- 조정 심의 추가 -->
+                        <div
+                            style="background:rgba(204,120,92,.08); border:1.5px solid rgba(204,120,92,.3); border-radius:12px; padding:16px;">
+                            <div
+                                style="font-size:11px; font-weight:700; color:#cc785c; text-transform:uppercase; letter-spacing:.08em; margin-bottom:12px;">
+                                조정 심의 추가</div>
+                            <div
+                                style="font-size:13px; font-family:monospace; color:#6c6a64; line-height:1.9; margin-bottom:10px;">
+                                <div>목표 이익: 2.9억 × 15%</div>
+                                <div style="color:#141413; font-weight:700;">= 4,350만 원</div>
+                                <div style="margin-top:8px;">차액 (추가 이익)</div>
+                                <div style="color:#141413; font-weight:700;">4,350만 − 3,880만</div>
+                                <div style="color:#cc785c; font-weight:800; font-size:16px;">= 470만 원</div>
+                            </div>
+                            <div style="background:#f5f0e8; border-radius:8px; padding:10px 12px; font-size:13px;">
+                                <div style="color:#6c6a64; margin-bottom:4px;">심의 입력값</div>
+                                <div style="display:flex; justify-content:space-between; font-family:monospace;">
+                                    <span style="color:#6c6a64;">반영매출</span>
+                                    <span style="color:#141413; font-weight:700;">0 원</span>
+                                </div>
+                                <div
+                                    style="display:flex; justify-content:space-between; font-family:monospace; margin-top:4px;">
+                                    <span style="color:#6c6a64;">반영이익</span>
+                                    <span style="color:#cc785c; font-weight:700;">+470만 원</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- After -->
+                        <div
+                            style="background:rgba(204,120,92,.08); border:1.5px solid rgba(204,120,92,.35); border-radius:12px; padding:16px;">
+                            <div
+                                style="font-size:11px; font-weight:700; color:#cc785c; text-transform:uppercase; letter-spacing:.08em; margin-bottom:12px;">
+                                AFTER — 조정 후</div>
+                            <div style="font-size:13px; font-family:monospace; color:#6c6a64; line-height:2.2;">
+                                <div>반영매출 합계</div>
+                                <div style="color:#141413; font-weight:700; font-size:15px;">2억 9,000만 원 <span
+                                        style="color:#6c6a64; font-size:13px;">(동일)</span></div>
+                                <div style="margin-top:6px;">반영이익 합계</div>
+                                <div style="color:#141413; font-weight:700; font-size:15px;">3,880만 + 470만 = <span
+                                        style="color:#cc785c;">4,350만 원</span></div>
+                            </div>
+                            <div
+                                style="margin-top:14px; padding-top:12px; border-top:1px solid rgba(204,120,92,.2); font-weight:700; font-size:18px;">
+                                이익률 = <span style="color:#cc785c; font-size:20px;">15.0%</span> ✓
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 원리 설명 -->
+                    <div
+                        style="background:#f5f0e8; border:1.5px solid #c8bfb4; border-radius:10px; padding:14px 18px; display:flex; gap:12px; align-items:flex-start; margin-bottom:20px;">
+                        <span style="font-size:18px; flex-shrink:0;">💡</span>
+                        <div style="font-size:14px; color:#6c6a64; line-height:1.75;">
+                            <b style="color:#141413;">반영매출을 0으로 두는 이유</b> — 가중평균 분모(반영매출 합계)를 그대로 2.9억으로 유지해야 이익률 계산이
+                            순수하게 이익 차액만으로 조정됩니다. 반영매출에 임의값을 넣으면 분모가 바뀌어 원하는 이익률이 나오지 않습니다.<br>
+                            <span style="color:#cc785c; font-weight:700; margin-top:6px; display:inline-block;">공식:
+                                (3,880만 + 470만) ÷ 2.9억 = 4,350만 ÷ 2.9억 = 15.0%</span>
+                        </div>
+                    </div>
+
+                    <!-- 조정 후 VRB 테이블 시뮬레이션 -->
+                    <div
+                        style="font-size:13px; font-weight:700; color:#6c6a64; text-transform:uppercase; letter-spacing:.06em; margin-bottom:10px;">
+                        📋 심의내역 테이블 반영 시 — 고객A 전화(A) 손익</div>
+                    <div style="border-radius:12px; overflow:hidden; border:1.5px solid #c8bfb4;">
+                        <table style="width:100%; border-collapse:collapse;">
+                            <thead>
+                                <tr>
+                                    <th
+                                        style="font-size:11px; font-weight:600; color:#6c6a64; letter-spacing:.04em; padding:8px 10px; background:#f5f0e8; text-align:left; white-space:nowrap;">
+                                        심의명</th>
+                                    <th
+                                        style="font-size:11px; font-weight:600; color:#6c6a64; letter-spacing:.04em; padding:8px 10px; background:#f5f0e8; text-align:left; white-space:nowrap;">
+                                        심의유형</th>
+                                    <th
+                                        style="font-size:11px; font-weight:600; color:#6c6a64; letter-spacing:.04em; padding:8px 10px; background:#f5f0e8; text-align:right; white-space:nowrap;">
+                                        반영개월수</th>
+                                    <th
+                                        style="font-size:11px; font-weight:600; color:#6c6a64; letter-spacing:.04em; padding:8px 10px; background:#f5f0e8; text-align:right; white-space:nowrap;">
+                                        반영매출</th>
+                                    <th
+                                        style="font-size:11px; font-weight:600; color:#6c6a64; letter-spacing:.04em; padding:8px 10px; background:#f5f0e8; text-align:right; white-space:nowrap;">
+                                        반영이익</th>
+                                    <th
+                                        style="font-size:11px; font-weight:600; color:#6c6a64; letter-spacing:.04em; padding:8px 10px; background:#f5f0e8; text-align:right; white-space:nowrap;">
+                                        비고</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <!-- 심의1 — 기존 행 -->
+                                <tr style="border-bottom:1px solid #e6dfd8;">
+                                    <td style="font-size:12px; color:#6c6a64; padding:9px 10px;">심의1</td>
+                                    <td style="font-size:12px; padding:9px 10px;"><span class="badge b-blue"
+                                            style="font-size:11px;">기저</span></td>
+                                    <td
+                                        style="font-size:12px; color:#6c6a64; padding:9px 10px; text-align:right; font-variant-numeric:tabular-nums;">
+                                        3</td>
+                                    <td
+                                        style="font-size:12px; color:#6c6a64; padding:9px 10px; text-align:right; font-variant-numeric:tabular-nums;">
+                                        9,000만</td>
+                                    <td
+                                        style="font-size:12px; color:#6c6a64; padding:9px 10px; text-align:right; font-variant-numeric:tabular-nums;">
+                                        1,080만</td>
+                                    <td style="font-size:12px; color:#6c6a64; padding:9px 10px; text-align:right;">기존
+                                    </td>
+                                </tr>
+                                <!-- 심의2 — 기존 행 -->
+                                <tr style="border-bottom:1px solid #e6dfd8;">
+                                    <td style="font-size:12px; color:#6c6a64; padding:9px 10px;">심의2</td>
+                                    <td style="font-size:12px; padding:9px 10px;"><span class="badge b-blue"
+                                            style="font-size:11px;">기저</span></td>
+                                    <td
+                                        style="font-size:12px; color:#6c6a64; padding:9px 10px; text-align:right; font-variant-numeric:tabular-nums;">
+                                        5</td>
+                                    <td
+                                        style="font-size:12px; color:#6c6a64; padding:9px 10px; text-align:right; font-variant-numeric:tabular-nums;">
+                                        2억</td>
+                                    <td
+                                        style="font-size:12px; color:#6c6a64; padding:9px 10px; text-align:right; font-variant-numeric:tabular-nums;">
+                                        2,800만</td>
+                                    <td style="font-size:12px; color:#6c6a64; padding:9px 10px; text-align:right;">기존
+                                    </td>
+                                </tr>
+                                <!-- 수주이익조정 — 추가 행 -->
+                                <tr
+                                    style="border-bottom:1px solid rgba(204,120,92,.2); background:rgba(204,120,92,.06);">
+                                    <td style="font-size:12px; color:#cc785c; padding:9px 10px; font-weight:700;">수주이익조정
+                                    </td>
+                                    <td style="font-size:12px; padding:9px 10px;"><span
+                                            style="background:#cc785c; color:#faf9f5; font-size:11px; font-weight:700; padding:2px 7px; border-radius:4px;">조정</span>
+                                    </td>
+                                    <td
+                                        style="font-size:12px; color:#cc785c; padding:9px 10px; text-align:right; font-variant-numeric:tabular-nums; font-weight:700;">
+                                        —</td>
+                                    <td
+                                        style="font-size:12px; color:#cc785c; padding:9px 10px; text-align:right; font-variant-numeric:tabular-nums; font-weight:700;">
+                                        0</td>
+                                    <td
+                                        style="font-size:12px; color:#cc785c; padding:9px 10px; text-align:right; font-variant-numeric:tabular-nums; font-weight:700;">
+                                        +470만</td>
+                                    <td
+                                        style="font-size:12px; color:#cc785c; padding:9px 10px; text-align:right; font-weight:700;">
+                                        추가</td>
+                                </tr>
+                                <!-- 합계 행 -->
+                                <tr style="background:#efe9de;">
+                                    <td colspan="2"
+                                        style="font-size:12px; color:#cc785c; padding:9px 10px; font-weight:700;">합계
+                                        (가중평균)</td>
+                                    <td
+                                        style="font-size:12px; color:#cc785c; padding:9px 10px; text-align:right; font-weight:700;">
+                                        —</td>
+                                    <td
+                                        style="font-size:12px; color:#cc785c; padding:9px 10px; text-align:right; font-weight:700; font-variant-numeric:tabular-nums;">
+                                        2억 9,000만</td>
+                                    <td
+                                        style="font-size:12px; color:#cc785c; padding:9px 10px; text-align:right; font-weight:700; font-variant-numeric:tabular-nums;">
+                                        4,350만</td>
+                                    <td
+                                        style="font-size:13px; color:#cc785c; padding:9px 10px; text-align:right; font-weight:800;">
+                                        = 15.0% ✓</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ══════════════════════════════════════
+     SECTION 4 — 배치 일정 (vertical animated timeline)
+══════════════════════════════════════ -->
+            <div id="s4" style="padding-top:48px;">
+                <div class="sec-pill reveal"><span>4</span>데이터 배치 및 릴리즈 일정</div>
+
+                <div class="grid-2col-r">
+                    <div class="card reveal reveal-delay-1">
+                        <div class="card-header">
+                            <div
+                                style="font-weight:700; font-size:16px; color:#141413; font-family:'Pretendard',sans-serif;">
+                                월별 배치 스케줄</div>
+                        </div>
+                        <div class="card-body" style="padding-top:20px;">
+                            <div id="batchTimeline"
+                                style="display:flex; flex-direction:column; align-items:flex-start; padding-left:16px;">
+
+                                <div class="batch-step"
+                                    style="display:flex; align-items:flex-start; gap:16px; width:100%;">
+                                    <div
+                                        style="display:flex; flex-direction:column; align-items:center; flex-shrink:0;">
+                                        <div
+                                            style="width:44px; height:44px; background:#f5f0e8; border-radius:12px; display:flex; align-items:center; justify-content:center; font-weight:800; color:#3d3d3a; font-size:16px;">
+                                            01</div>
+                                        <div class="batch-connector-line" id="bcl1"></div>
+                                    </div>
+                                    <div style="padding-top:4px; padding-bottom:24px;">
+                                        <div
+                                            style="font-size:12px; font-weight:700; color:#6c6a64; text-transform:uppercase; letter-spacing:.05em; margin-bottom:3px;">
+                                            Business Day</div>
+                                        <div style="font-size:16px; font-weight:800; color:#141413; margin-bottom:5px;">
+                                            매월 6 영업일</div>
+                                        <div style="font-size:14px; color:#6c6a64; line-height:1.65;">기업 DW 확정매출 및 부문별
+                                            PL 계정 산출 마감. 달력상 <b>9~10일경</b> 유동</div>
+                                    </div>
+                                </div>
+
+                                <div class="batch-step"
+                                    style="display:flex; align-items:flex-start; gap:16px; width:100%;">
+                                    <div
+                                        style="display:flex; flex-direction:column; align-items:center; flex-shrink:0;">
+                                        <div
+                                            style="width:44px; height:44px; background:#efe9de; border-radius:12px; display:flex; align-items:center; justify-content:center; font-weight:800; color:#cc785c; font-size:16px;">
+                                            02</div>
+                                        <div class="batch-connector-line" id="bcl2"></div>
+                                    </div>
+                                    <div style="padding-top:4px; padding-bottom:24px;">
+                                        <div
+                                            style="font-size:12px; font-weight:700; color:#cc785c; text-transform:uppercase; letter-spacing:.05em; margin-bottom:3px;">
+                                            Calendar Day</div>
+                                        <div style="font-size:16px; font-weight:800; color:#141413; margin-bottom:5px;">
+                                            매월 11일 04:00</div>
+                                        <div style="font-size:14px; color:#6c6a64; line-height:1.65;">DW → 분석 데이터레이크(DL)
+                                            이관 및 적재 자동 완료. <b>공휴일 무관</b></div>
+                                    </div>
+                                </div>
+
+                                <div class="batch-step"
+                                    style="display:flex; align-items:flex-start; gap:16px; width:100%;">
+                                    <div
+                                        style="display:flex; flex-direction:column; align-items:center; flex-shrink:0;">
+                                        <div
+                                            style="width:44px; height:44px; background:#cc785c; border-radius:12px; display:flex; align-items:center; justify-content:center; font-weight:800; color:#faf9f5; font-size:16px;">
+                                            03</div>
+                                    </div>
+                                    <div style="padding-top:4px;">
+                                        <div
+                                            style="font-size:12px; font-weight:700; color:#cc785c; text-transform:uppercase; letter-spacing:.05em; margin-bottom:3px;">
+                                            Calendar Day</div>
+                                        <div style="font-size:16px; font-weight:800; color:#141413; margin-bottom:5px;">
+                                            매월 11일 05:00~</div>
+                                        <div style="font-size:14px; color:#6c6a64; line-height:1.65;">DL 원장 조인 → <b>성과관리
+                                                데이터 마트</b> 구축. 스케줄러 감지 후 연쇄 기동</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div style="background:#efe9de; border-radius:20px; padding:22px; color:#141413; display:flex; flex-direction:column; gap:12px; border:1.5px solid #c8bfb4;"
+                        class="reveal reveal-delay-2">
+                        <div style="font-size:24px;">📅</div>
+                        <div>
+                            <div style="font-weight:700; color:#cc785c; font-size:15px; margin-bottom:8px;">휴일·마감 지연 시
+                                대응</div>
+                            <p style="font-size:14px; color:#6c6a64; line-height:1.75;">
+                                연휴나 월초 공휴일로 <b style="color:#141413;">6영업일 마감이 11일 이후로 밀려도</b>, 시스템은 스케줄러(11일)에서 DW 원장
+                                생성을 감지하는 시점에 후속 배치를 자동 트리거합니다.
+                            </p>
+                            <div
+                                style="margin-top:12px; background:#efe9de; border-radius:8px; padding:10px 12px; font-size:13px; font-weight:700; color:#cc785c;">
+                                ✓ 인위적 수동 조정 불필요
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ══════════════════════════════════════
+     SECTION 5 — 매월 기본 작업 리스트
+══════════════════════════════════════ -->
+            <div id="s5" style="padding-top:48px;">
+                <div class="sec-pill reveal"><span>5</span>매월 기본 작업 리스트</div>
+
+                <!-- 타임라인 요약 -->
+                <div style="background:#efe9de; border-radius:16px; padding:24px; color:#141413; display:flex; flex-direction:column; gap:0; margin-bottom:20px; border:1.5px solid #c8bfb4;"
+                    class="reveal reveal-delay-1">
+                    <div
+                        style="font-size:13px; font-weight:700; color:#cc785c; margin-bottom:18px; letter-spacing:.05em; text-transform:uppercase;">
+                        월별 작업 순서 요약</div>
+
+                    <!-- Phase 1 -->
+                    <div style="display:flex; gap:16px; align-items:flex-start;">
+                        <div style="display:flex; flex-direction:column; align-items:center; flex-shrink:0;">
+                            <div
+                                style="width:40px; height:40px; background:#f5f0e8; border:2px solid #c8bfb4; border-radius:12px; display:flex; align-items:center; justify-content:center; font-weight:800; color:#6c6a64; font-size:12px; text-align:center; line-height:1.2;">
+                                데이터<br>생성전</div>
+                            <div style="width:2px; background:#c8bfb4; flex:1; min-height:28px; margin:4px 0;"></div>
+                        </div>
+                        <div style="padding-top:6px; padding-bottom:20px;">
+                            <div style="font-size:15px; font-weight:800; color:#141413; margin-bottom:6px;">수기테이블 정비
+                            </div>
+                            <div style="font-size:13px; color:#6c6a64; line-height:1.75;">
+                                DW 매출·PL 자료는 11일 직전·이후 유동적으로 나오므로, 수령되는 대로 즉시 대응<br>
+                                <span style="color:#6c6a64;">· 에스원·KGM·토요타 보정매출 → 매출조정 수기테이블 기입</span><br>
+                                <span style="color:#6c6a64;">· 기획팀 PL 자료 수령 시 → 한전 PL 수익률 수기테이블 완성</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 분기점 -->
+                    <div style="display:flex; gap:16px; align-items:center; margin-bottom:0;">
+                        <div style="width:40px; flex-shrink:0; display:flex; justify-content:center;">
+                            <div
+                                style="width:40px; height:40px; background:#cc785c; border-radius:12px; display:flex; align-items:center; justify-content:center; font-size:18px;">
+                                ⚡</div>
+                        </div>
+                        <div
+                            style="background:#efe9de; border:1.5px solid #c8bfb4; border-radius:8px; padding:7px 14px; font-size:13px; font-weight:700; color:#cc785c; flex:1;">
+                            11일 05:00~ — 성과관리 데이터 자동 생성
+                        </div>
+                    </div>
+
+                    <!-- connector -->
+                    <div style="display:flex; gap:16px;">
+                        <div style="width:40px; flex-shrink:0; display:flex; justify-content:center;">
+                            <div style="width:2px; background:#c8bfb4; min-height:20px; margin:4px 0;"></div>
+                        </div>
+                        <div></div>
+                    </div>
+
+                    <!-- Phase 2A -->
+                    <div style="display:flex; gap:16px; align-items:flex-start;">
+                        <div style="display:flex; flex-direction:column; align-items:center; flex-shrink:0;">
+                            <div
+                                style="width:40px; height:40px; background:#efe9de; border:2px solid #cc785c; border-radius:12px; display:flex; align-items:center; justify-content:center; font-weight:800; color:#cc785c; font-size:12px; text-align:center; line-height:1.2;">
+                                생성<br>이후</div>
+                            <div style="width:2px; background:#c8bfb4; flex:1; min-height:28px; margin:4px 0;"></div>
+                        </div>
+                        <div style="padding-top:6px; padding-bottom:20px;">
+                            <div style="display:flex; align-items:center; gap:8px; margin-bottom:6px;">
+                                <div style="font-size:15px; font-weight:800; color:#141413;">수기테이블 미완성 항목 있을 시</div>
+                                <span
+                                    style="background:#cc785c; border-radius:6px; padding:2px 8px; font-size:11px; font-weight:700; color:#faf9f5;">IF</span>
+                            </div>
+                            <div style="font-size:13px; color:#6c6a64; line-height:1.75;">
+                                수기테이블 완성 후 <b style="color:#141413;">데이터 재생성</b> 요청
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Phase 2B -->
+                    <div style="display:flex; gap:16px; align-items:flex-start;">
+                        <div style="display:flex; flex-direction:column; align-items:center; flex-shrink:0;">
+                            <div
+                                style="width:40px; height:40px; background:#efe9de; border:2px solid #cc785c; border-radius:12px; display:flex; align-items:center; justify-content:center; font-weight:800; color:#cc785c; font-size:12px; text-align:center; line-height:1.2;">
+                                생성<br>이후</div>
+                            <div style="width:2px; background:#c8bfb4; flex:1; min-height:28px; margin:4px 0;"></div>
+                        </div>
+                        <div style="padding-top:6px; padding-bottom:20px;">
+                            <div style="display:flex; align-items:center; gap:8px; margin-bottom:6px;">
+                                <div style="font-size:15px; font-weight:800; color:#141413;">수기테이블 완성 시</div>
+                                <span
+                                    style="background:#cc785c; border-radius:6px; padding:2px 8px; font-size:11px; font-weight:700; color:#faf9f5;">ELSE</span>
+                            </div>
+                            <div style="font-size:13px; color:#6c6a64; line-height:1.75;">
+                                KA 고객 매출·이익 및 심의내역 데이터 추출<br>
+                                <span style="color:#6c6a64;">· 네이버클라우드·한전 <b style="color:#141413;">수익성 조정
+                                        수행</b></span><br>
+                                <span style="color:#6c6a64;">· 나머지 KA 고객 <b style="color:#141413;">특이사항 체크</b></span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Phase 3 -->
+                    <div style="display:flex; gap:16px; align-items:flex-start;">
+                        <div style="display:flex; flex-direction:column; align-items:center; flex-shrink:0;">
+                            <div
+                                style="width:40px; height:40px; background:#cc785c; border-radius:12px; display:flex; align-items:center; justify-content:center; font-size:18px;">
+                                ✅</div>
+                        </div>
+                        <div style="padding-top:6px;">
+                            <div style="font-size:15px; font-weight:800; color:#141413; margin-bottom:6px;">Eye-Checking
+                            </div>
+                            <div style="font-size:13px; color:#6c6a64; line-height:1.75;">
+                                Claude로 특이사항 체크 양식 생성 → 항목별 육안 확인
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+
+                <div class="card reveal reveal-delay-2" style="margin-bottom:20px;">
+                    <div class="card-header" style="background:linear-gradient(135deg,#cc785c,#a9583e); color:#faf9f5;">
+                        <div style="font-weight:800; font-size:17px;">01 · 매출 보정 — 에스원 · KGM · 토요타 수기 기입</div>
+                        <div style="font-size:13px; opacity:.8; margin-top:4px;">월평균 4~5억 원 규모 · 11일 배치 이전 완료 필수</div>
+                    </div>
+                    <div class="card-body">
+                        <p style="font-size:14px; color:#3d3d3a; line-height:1.75; margin-bottom:16px;">
+                            에스원(M21/M2M), KGM(T35/커넥티드카), 토요타(T35/커넥티드카)는 시스템이 자동 산출하지 못하는 보정 매출이 발생합니다.<br>
+                            아래 세 가지 옵션 중 하나로 금액을 확인한 뒤 <b>매출조정 수기테이블에 직접 기입</b>합니다.
+                        </p>
+
+                        <div style="display:flex; flex-direction:column; gap:12px;">
+
+                            <div
+                                style="display:flex; gap:14px; align-items:flex-start; background:#f5f0e8; border-radius:12px; padding:14px 16px; border:1.5px solid #c8bfb4;">
+                                <div
+                                    style="width:36px; height:36px; background:#efe9de; border-radius:10px; display:flex; align-items:center; justify-content:center; font-weight:800; color:#cc785c; font-size:15px; flex-shrink:0;">
+                                    A</div>
+                                <div>
+                                    <div style="font-weight:700; font-size:14px; color:#141413; margin-bottom:3px;">기업
+                                        DW에서 영업사원별 손익 보정매출 확인</div>
+                                    <div style="font-size:13px; color:#6c6a64; line-height:1.6;">기업 DW 접속 → 담당 영업사원 기준으로
+                                        해당 손익계정의 보정매출 금액 조회. 가장 직접적이나 DW 접근 권한 필요</div>
+                                </div>
+                            </div>
+
+                            <div
+                                style="display:flex; gap:14px; align-items:flex-start; background:#f5f0e8; border-radius:12px; padding:14px 16px; border:1.5px solid #c8bfb4;">
+                                <div
+                                    style="width:36px; height:36px; background:#efe9de; border-radius:10px; display:flex; align-items:center; justify-content:center; font-weight:800; color:#cc785c; font-size:15px; flex-shrink:0;">
+                                    B</div>
+                                <div>
+                                    <div style="font-weight:700; font-size:14px; color:#141413; margin-bottom:3px;">
+                                        파트너플러스에서 사업자별 정산금액 확인</div>
+                                    <div style="font-size:13px; color:#6c6a64; line-height:1.6;">파트너플러스 → 사업자 단위 정산내역
+                                        조회. DW 대비 접근이 쉬우나 계정 체계 매핑 주의 필요</div>
+                                </div>
+                            </div>
+
+                            <div
+                                style="display:flex; gap:14px; align-items:flex-start; background:#f5f0e8; border-radius:12px; padding:14px 16px; border:1.5px solid #c8bfb4;">
+                                <div
+                                    style="width:36px; height:36px; background:#f5f0e8; border-radius:10px; display:flex; align-items:center; justify-content:center; font-weight:800; color:#6c6a64; font-size:15px; flex-shrink:0;">
+                                    C</div>
+                                <div>
+                                    <div style="font-weight:700; font-size:14px; color:#141413; margin-bottom:3px;">담당
+                                        영업사원에게 직접 확인</div>
+                                    <div style="font-size:13px; color:#6c6a64; line-height:1.6;">A/B 옵션으로 금액 확인이 어려울 때
+                                        최후 수단. 영업사원에게 해당 월 보정매출 금액 문의</div>
+                                </div>
+                            </div>
+
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card reveal reveal-delay-3" style="margin-bottom:20px;">
+                    <div class="card-header" style="background:linear-gradient(135deg,#cc785c,#a9583e); color:#faf9f5;">
+                        <div style="font-weight:800; font-size:17px;">02 · 수익성 조정</div>
+                        <div style="font-size:13px; opacity:.8; margin-top:4px;">네이버클라우드 · 한전 — 11일 배치 직후 조정처리 반영</div>
+                    </div>
+                    <div class="card-body" style="display:flex; flex-direction:column; gap:20px; padding-top:20px;">
+
+                        <!-- 네이버클라우드 -->
+                        <div style="border-left:4px solid #cc785c; padding-left:16px;">
+                            <div style="display:flex; align-items:center; gap:8px; margin-bottom:10px;">
+                                <span class="badge b-blue" style="font-size:13px; font-weight:800;">네이버클라우드 (코람코
+                                    IDC)</span>
+                                <span style="font-size:12px; color:#6c6a64;">Billing 역산 예외처리</span>
+                            </div>
+                            <ol style="margin:0; padding-left:18px; display:flex; flex-direction:column; gap:8px;">
+                                <li style="font-size:14px; color:#3d3d3a; line-height:1.7;">
+                                    <b>UCube</b>에서 네이버클라우드 청구계정의 <b>청구금액 확인</b>
+                                </li>
+                                <li style="font-size:14px; color:#3d3d3a; line-height:1.7;">
+                                    11일 이후 최신월 성과관리 데이터 생성 완료 확인
+                                </li>
+                                <li style="font-size:14px; color:#3d3d3a; line-height:1.7;">
+                                    심의내역 데이터에서 <b>네이버 IDC 손익의 코람코 관련 심의</b>를 찾아<br>
+                                    <span
+                                        style="display:inline-block; margin-top:4px; background:#efe9de; border-radius:6px; padding:3px 10px; font-size:13px; font-weight:700; color:#cc785c;">반영매출을
+                                        1월~최신월 누적값으로 조정처리 반영</span>
+                                </li>
+                            </ol>
+                        </div>
+
+                        <div style="border-top:1px solid #e6dfd8;"></div>
+
+                        <!-- 한전 -->
+                        <div style="border-left:4px solid #c8bfb4; padding-left:16px;">
+                            <div style="display:flex; align-items:center; gap:8px; margin-bottom:10px;">
+                                <span class="badge b-purple" style="font-size:13px; font-weight:800;">한전 KEPCO
+                                    전력통신</span>
+                                <span style="font-size:12px; color:#6c6a64;">PL 이익률 강제 적용</span>
+                            </div>
+                            <ol style="margin:0; padding-left:18px; display:flex; flex-direction:column; gap:8px;">
+                                <li style="font-size:14px; color:#3d3d3a; line-height:1.7;">
+                                    매월 <b>6 영업일 즈음(9~10일경)</b> 기획팀에서 전달하는 <b>PL 자료 수령</b>
+                                </li>
+                                <li style="font-size:14px; color:#3d3d3a; line-height:1.7;">
+                                    수령한 PL 자료로 <b>PL 수익률 수기테이블 완성</b> → 최신월의 <b>P10 전력통신 수익률 입력</b>
+                                </li>
+                                <li style="font-size:14px; color:#3d3d3a; line-height:1.7;">
+                                    11일 이후 최신월 성과관리 데이터 생성 완료 확인
+                                </li>
+                                <li style="font-size:14px; color:#3d3d3a; line-height:1.7;">
+                                    심의내역 데이터에서 <b>한전의 P10 전력통신 심의</b>를 찾아<br>
+                                    <span
+                                        style="display:inline-block; margin-top:4px; background:#efe9de; border-radius:6px; padding:3px 10px; font-size:13px; font-weight:700; color:#cc785c;">수익률을
+                                        PL 수익률로 변경하는 조정처리 반영</span>
+                                </li>
+                            </ol>
+                        </div>
+
+                    </div>
+                </div>
+
+            </div>
+
+        </div>
+    </main>
+
+    <script>
+        // ─────────────────────────────────────────
+        // 1. Scroll-reveal (IntersectionObserver)
+        // ─────────────────────────────────────────
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(e => {
+                if (e.isIntersecting) {
+                    e.target.classList.add('visible');
+                }
+            });
+        }, { threshold: 0.12 });
+
+        document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+
+        // ─────────────────────────────────────────
+        // 2. Counter animation (카운트업)
+        // ─────────────────────────────────────────
+        function animateCounter(el) {
+            const target = parseFloat(el.dataset.target);
+            const suffix = el.dataset.suffix || '';
+            const isFloat = el.dataset.float === 'true';
+            const isComma = el.dataset.comma === 'true';
+            const duration = 900;
+            const start = performance.now();
+
+            function fmt(v) {
+                if (isComma) return Math.round(v).toLocaleString('ko-KR') + suffix;
+                if (isFloat) return v.toFixed(1) + suffix;
+                return Math.round(v) + suffix;
+            }
+
+            function tick(now) {
+                const t = Math.min((now - start) / duration, 1);
+                const ease = 1 - Math.pow(1 - t, 3);
+                el.textContent = fmt(target * ease);
+                if (t < 1) requestAnimationFrame(tick);
+                else el.textContent = fmt(target);
+            }
+            requestAnimationFrame(tick);
+        }
+
+        const counterObserver = new IntersectionObserver((entries) => {
+            entries.forEach(e => {
+                if (e.isIntersecting && !e.target.dataset.played) {
+                    e.target.dataset.played = '1';
+                    animateCounter(e.target);
+                }
+            });
+        }, { threshold: 0.5 });
+
+        document.querySelectorAll('.counter').forEach(el => counterObserver.observe(el));
+
+        // ─────────────────────────────────────────
+        // 3. Pipeline node — hover only
+        // ─────────────────────────────────────────
+        const pipeDescriptions = [
+            '🏢 <b>기업DW</b> — 매출·손익·계정 원천 데이터. 6영업일 마감 기준으로 최신화됩니다.',
+            '📋 <b>수기 테이블</b> — KA/GA 고객 정의, PL 수익률, 매출·수주 보정값. 각 항목별로 담당자가 직접 업데이트해야 합니다.',
+            '🔗 <b>고객 마스터 Join</b> — 사업자번호(우선) 또는 UCube 고객번호를 키로 모든 원천을 단일 고객 ID로 통합합니다.',
+            '📊 <b>성과 마트</b> — 확정매출·수익성·수주잔고·GRR/NRR 4개 지표가 완성된 최종 산출물. 매월 11일 05:00~ 자동 적재됩니다.',
+        ];
+
+        const nodes = [0, 1, 2, 3].map(i => document.getElementById('pn' + i));
+        const connectors = [0, 1, 2].map(i => document.getElementById('pc' + i));
+        const desc = document.getElementById('pipe-desc');
+
+        function activateNode(i) {
+            nodes.forEach(n => n.classList.remove('lit'));
+            nodes[i].classList.add('lit');
+            desc.innerHTML = pipeDescriptions[i];
+        }
+
+        nodes.forEach((n, i) => {
+            n.style.cursor = 'pointer';
+            n.addEventListener('mouseenter', () => activateNode(i));
+        });
+
+        // tbl-row-reveal, calc-line, calc-result — 즉시 표시
+        document.querySelectorAll('.tbl-row-reveal').forEach(el => el.classList.add('visible'));
+        document.querySelectorAll('.calc-line').forEach(el => el.classList.add('visible'));
+        document.querySelectorAll('.calc-result').forEach(el => el.classList.add('visible'));
+
+        // ─────────────────────────────────────────
+        // 8. Nav active highlight
+        // ─────────────────────────────────────────
+        const sections = ['s1', 's2', 's3', 's4', 's5'];
+        const navLinks = document.querySelectorAll('nav a');
+        window.addEventListener('scroll', () => {
+            let cur = '';
+            sections.forEach(id => {
+                const el = document.getElementById(id);
+                if (el && window.scrollY >= el.offsetTop - 80) cur = id;
+            });
+            navLinks.forEach(a => {
+                const isActive = a.getAttribute('href') === '#' + cur;
+                a.style.color = isActive ? '#cc785c' : '#6c6a64';
+                a.style.fontWeight = isActive ? '700' : '600';
+            });
+        });
+
+        // ─────────────────────────────────────────
+        // 9. Chart.js 초기화
+        // ─────────────────────────────────────────
+        Chart.defaults.font.family = "'Pretendard', sans-serif";
+        Chart.defaults.color = '#a09d96';
+
+        const COLORS = {
+            blue: '#cc785c',
+            cyan: '#5db8a6',
+            purple: '#8e8b82',
+            slate: '#6c6a64',
+        };
+
+        let chartsCreated = false;
+
+        function createCharts() {
+            if (chartsCreated) return;
+            chartsCreated = true;
+
+            // ── 도넛: 반영매출 비중 ──
+            new Chart(document.getElementById('donutChart'), {
+                type: 'doughnut',
+                data: {
+                    labels: ['전화 (A)', 'IDC (I)', '인터넷 (B)'],
+                    datasets: [{
+                        data: [29000, 39000, 112000],
+                        backgroundColor: [COLORS.blue, COLORS.cyan, COLORS.purple],
+                        borderWidth: 0,
+                        hoverOffset: 8,
+                    }]
+                },
+                options: {
+                    cutout: '62%',
+                    animation: { animateRotate: true, duration: 900 },
+                    plugins: {
+                        legend: {
+                            position: 'bottom',
+                            labels: { boxWidth: 10, padding: 12, font: { size: 11 } }
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: ctx => {
+                                    const total = ctx.dataset.data.reduce((a, b) => a + b, 0);
+                                    const pct = (ctx.parsed / total * 100).toFixed(1);
+                                    return ` ${(ctx.parsed / 10000).toFixed(1)}억 (${pct}%)`;
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+
+        }
+
+        // 도넛 차트 — calcSection 진입 시 생성
+        const donutObs = new IntersectionObserver((entries) => {
+            if (entries[0].isIntersecting) {
+                donutObs.disconnect();
+                createCharts();
+            }
+        }, { threshold: 0.2 });
+        donutObs.observe(document.getElementById('calcSection'));
+
+        // ─────────────────────────────────────────
+        // 10. Calc card hover → VRB table row highlight
+        // ─────────────────────────────────────────
+        const vrbTbody = document.getElementById('vrbTableBody');
+        [['calcA', 'A'], ['calcI', 'I'], ['calcB', 'B']].forEach(([id, pl]) => {
+            const card = document.getElementById(id);
+            card.addEventListener('mouseenter', () => {
+                vrbTbody.classList.add('hover-active');
+                vrbTbody.querySelectorAll('tr').forEach(tr => {
+                    tr.classList.toggle('pl-highlight', tr.dataset.pl === pl);
+                });
+            });
+            card.addEventListener('mouseleave', () => {
+                vrbTbody.classList.remove('hover-active');
+                vrbTbody.querySelectorAll('tr.pl-highlight').forEach(tr => tr.classList.remove('pl-highlight'));
+            });
+        });
+    </script>
+</body>
+
+</html>
